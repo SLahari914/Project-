@@ -1,0 +1,509 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Internship Report</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #333;
+        }
+
+        header {
+            background: #1565c0;
+            color: white;
+            padding: 22px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        header h1 {
+            font-size: 22px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 22px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            color: #1565c0;
+            margin-bottom: 18px;
+        }
+
+        .student-details p {
+            margin: 10px 0;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .summary-item {
+            padding: 20px;
+            background: #e3f2fd;
+            border-radius: 9px;
+        }
+
+        .summary-item h3 {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .summary-item p {
+            color: #1565c0;
+            font-size: 25px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e5eb;
+            vertical-align: top;
+        }
+
+        th {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .feedback {
+            background: #f5f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+
+        button {
+            padding: 11px 17px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .back {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .print {
+            background: #1565c0;
+            color: white;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .empty {
+            color: #777;
+            padding: 10px 0;
+        }
+
+        @media(max-width: 700px) {
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .container {
+                padding: 12px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            header {
+                background: white;
+                color: black;
+                padding: 10px 0;
+            }
+
+            .actions, .no-print {
+                display: none !important;
+            }
+
+            .container {
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                break-inside: avoid;
+            }
+
+            .summary {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Internship Performance Report</h1>
+    <button class="back no-print" onclick="goBack()">
+        Back to Dashboard
+    </button>
+</header>
+
+<div class="container">
+
+    <div class="actions no-print">
+        <button class="print" onclick="window.print()">
+            Print / Save as PDF
+        </button>
+
+        <button class="back" onclick="loadReport()">
+            Refresh Report
+        </button>
+    </div>
+
+    <div class="card student-details">
+        <h2>Student Information</h2>
+
+        <p><strong>Name:</strong> <span id="studentName">-</span></p>
+        <p><strong>USN:</strong> <span id="studentUSN">-</span></p>
+        <p><strong>Email:</strong> <span id="studentEmail">-</span></p>
+        <p><strong>Company:</strong> <span id="companyName">-</span></p>
+        <p><strong>Internship Status:</strong> <span id="internshipStatus">-</span></p>
+        <p><strong>Report Generated:</strong> <span id="reportDate">-</span></p>
+    </div>
+
+    <div class="card">
+        <h2>Performance Summary</h2>
+
+        <div class="summary">
+            <div class="summary-item">
+                <h3>Attendance</h3>
+                <p id="attendanceValue">0%</p>
+            </div>
+
+            <div class="summary-item">
+                <h3>Tasks Submitted</h3>
+                <p id="tasksValue">0</p>
+            </div>
+
+            <div class="summary-item">
+                <h3>Performance Score</h3>
+                <p id="performanceValue">Not evaluated</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Weekly Internship Updates</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Hours</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody id="updatesTable"></tbody>
+            </table>
+        </div>
+
+        <p class="empty" id="updatesEmpty">No weekly updates submitted.</p>
+    </div>
+
+    <div class="card">
+        <h2>Submitted Tasks</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Task Title</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tasksTable"></tbody>
+            </table>
+        </div>
+
+        <p class="empty" id="tasksEmpty">No tasks submitted.</p>
+    </div>
+
+    <div class="card">
+        <h2>Attendance History</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceTable"></tbody>
+            </table>
+        </div>
+
+        <p class="empty" id="attendanceEmpty">No attendance records found.</p>
+    </div>
+
+    <div class="card">
+        <h2>Faculty Evaluation</h2>
+        <p><strong>Score:</strong> <span id="evaluationScore">Not evaluated</span></p>
+        <p style="margin-top:12px;"><strong>Feedback:</strong></p>
+        <p class="feedback" id="evaluationFeedback">No feedback available yet.</p>
+    </div>
+
+</div>
+
+<script>
+    const role = localStorage.getItem("userRole");
+    const usn = localStorage.getItem("username");
+
+    if (role !== "student" || !usn) {
+        alert("Please log in using your student account.");
+        window.location.href = "/login";
+    }
+
+    function readStorage(key) {
+        try {
+            return JSON.parse(localStorage.getItem(key)) || [];
+        } catch {
+            return [];
+        }
+    }
+
+    function sameUSN(value) {
+        return String(value || "").toLowerCase() ===
+            String(usn || "").toLowerCase();
+    }
+
+    function addRow(tableId, values) {
+        const row = document.createElement("tr");
+
+        values.forEach(value => {
+            const cell = document.createElement("td");
+            cell.textContent =
+                value === undefined || value === null || value === ""
+                    ? "-"
+                    : value;
+            row.appendChild(cell);
+        });
+
+        document.getElementById(tableId).appendChild(row);
+    }
+
+    function showEmpty(emptyId, hasRows) {
+        document.getElementById(emptyId).style.display =
+            hasRows ? "none" : "block";
+    }
+
+    function loadReport() {
+        const students = readStorage("students");
+        const student = students.find(item => sameUSN(item.usn));
+
+        document.getElementById("studentName").textContent =
+            (student && student.name) ||
+            localStorage.getItem("userName") || "Student";
+
+        document.getElementById("studentUSN").textContent = usn;
+
+        document.getElementById("studentEmail").textContent =
+            (student && student.email) ||
+            localStorage.getItem("userEmail") || "-";
+
+        const internships = readStorage("internships");
+
+        const internship = internships.find(item =>
+            sameUSN(item.student)
+        );
+
+        document.getElementById("companyName").textContent =
+            (internship && internship.company) ||
+            (student && (student.company || student.internshipCompany)) ||
+            "-";
+
+        document.getElementById("internshipStatus").textContent =
+            (internship && internship.status) ||
+            (student && (student.status || student.internshipStatus)) ||
+            "Not Started";
+
+        document.getElementById("reportDate").textContent =
+            new Date().toLocaleDateString();
+
+        // Weekly updates
+        const rawWeekly = readStorage("weeklyUpdates");
+        const rawDaily  = readStorage("dailyUpdates");
+        const updateMap = new Map();
+        [...rawWeekly, ...rawDaily].forEach(u => {
+            if (u && (u.date || u.description)) {
+                const k = (u.date || '') + '|' + (u.description || '');
+                if (!updateMap.has(k)) updateMap.set(k, u);
+            }
+        });
+        const updates = Array.from(updateMap.values())
+            .filter(item => sameUSN(item.usn));
+
+        const updatesTable = document.getElementById("updatesTable");
+        updatesTable.innerHTML = "";
+
+        updates.slice().reverse().forEach(item => {
+            addRow("updatesTable", [
+                item.date,
+                item.description,
+                item.hours,
+                item.status,
+                item.remarks
+            ]);
+        });
+
+        showEmpty("updatesEmpty", updates.length > 0);
+
+        // Tasks
+        const tasks = readStorage("taskSubmissions")
+            .filter(item => sameUSN(item.usn));
+
+        document.getElementById("tasksValue").textContent = tasks.length;
+
+        document.getElementById("tasksTable").innerHTML = "";
+
+        tasks.slice().reverse().forEach(item => {
+            addRow("tasksTable", [
+                item.title,
+                item.description,
+                item.date,
+                item.status
+            ]);
+        });
+
+        showEmpty("tasksEmpty", tasks.length > 0);
+
+        // Attendance
+        const attendanceRecords = readStorage("attendanceRecords")
+            .filter(item => sameUSN(item.usn));
+
+        const attendanceSummary = readStorage("attendance");
+        const savedPercentage = attendanceSummary[usn];
+
+        let percentage = 0;
+
+        if (attendanceRecords.length > 0) {
+            const present = attendanceRecords.filter(item =>
+                String(item.status || "").toLowerCase() === "present"
+            ).length;
+
+            percentage = Math.round(
+                present / attendanceRecords.length * 100
+            );
+        } else if (savedPercentage !== undefined) {
+            percentage = Number(savedPercentage) || 0;
+        }
+
+        document.getElementById("attendanceValue").textContent =
+            percentage + "%";
+
+        document.getElementById("attendanceTable").innerHTML = "";
+
+        attendanceRecords.slice().reverse().forEach(item => {
+            addRow("attendanceTable", [
+                item.date,
+                item.status,
+                item.remarks
+            ]);
+        });
+
+        showEmpty("attendanceEmpty", attendanceRecords.length > 0);
+
+        // Evaluation: look up USN without case sensitivity
+        const evaluations = readStorage("evaluations");
+        const evaluationKey = Object.keys(evaluations).find(key =>
+            sameUSN(key)
+        );
+
+        const evaluation = evaluationKey
+            ? evaluations[evaluationKey]
+            : null;
+
+        if (evaluation && evaluation.score !== undefined) {
+            document.getElementById("performanceValue").textContent =
+                evaluation.score + "%";
+
+            document.getElementById("evaluationScore").textContent =
+                evaluation.score + "/100";
+
+            document.getElementById("evaluationFeedback").textContent =
+                evaluation.feedback || "No feedback provided.";
+        } else {
+            document.getElementById("performanceValue").textContent =
+                "Not evaluated";
+
+            document.getElementById("evaluationScore").textContent =
+                "Not evaluated";
+
+            document.getElementById("evaluationFeedback").textContent =
+                "No feedback available yet.";
+        }
+    }
+
+    function goBack() {
+        window.location.href = "/student/dashboard";
+    }
+
+    loadReport();
+</script>
+
+</body>
+</html>

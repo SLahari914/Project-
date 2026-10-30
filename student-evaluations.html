@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Evaluation</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: Arial, sans-serif;
+  background: #f3f6fb; color: #243047;
+}
+header {
+  background: #173b70; color: white; padding: 22px 7%;
+  display: flex; justify-content: space-between;
+  align-items: center; gap: 12px; flex-wrap: wrap;
+}
+header h1 { font-size: 23px; margin: 0; }
+button {
+  border: 0; border-radius: 8px; padding: 11px 16px;
+  background: white; color: #173b70; cursor: pointer;
+}
+.container { max-width: 800px; margin: 32px auto; padding: 0 18px; }
+.card {
+  background: white; padding: 26px; border-radius: 14px;
+  box-shadow: 0 5px 18px #152b4d12; margin-bottom: 18px;
+}
+h2 { margin-top: 0; color: #173b70; }
+.score {
+  font-size: 44px; font-weight: bold; color: #173b70;
+  margin: 12px 0;
+}
+.progress {
+  height: 14px; background: #e2e8f0; border-radius: 10px;
+  overflow: hidden; margin: 15px 0 22px;
+}
+.bar { height: 100%; width: 0; background: #16a34a; }
+.label { color: #64748b; font-size: 13px; margin-bottom: 8px; }
+.feedback {
+  background: #f5f8fd; padding: 16px; border-radius: 9px;
+  line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.message { color: #64748b; line-height: 1.6; }
+</style>
+</head>
+<body>
+<header>
+  <h1>My Evaluation</h1>
+  <button onclick="location.href='student-dashboard.html'">
+    Back to Dashboard
+  </button>
+</header>
+
+<main class="container">
+  <section class="card">
+    <h2>Performance Evaluation</h2>
+    <p class="label">Student USN</p>
+    <strong id="studentUsn"></strong>
+
+    <div class="label" style="margin-top:24px">Performance Score</div>
+    <div class="score" id="score">Not evaluated</div>
+
+    <div class="progress">
+      <div class="bar" id="scoreBar"></div>
+    </div>
+
+    <div class="label">Faculty Feedback</div>
+    <div class="feedback" id="feedback">
+      No feedback has been provided yet.
+    </div>
+
+    <p class="message" id="updatedAt"></p>
+    <p class="message" id="emptyMessage" hidden>
+      Your faculty has not submitted an evaluation yet.
+      Please check again later.
+    </p>
+  </section>
+</main>
+
+<script>
+const role = localStorage.getItem("userRole");
+const usn = localStorage.getItem("username");
+
+if (role !== "student" || !usn) {
+  location.href = "login.html";
+}
+
+document.getElementById("studentUsn").textContent = usn;
+
+function readEvaluations() {
+  try {
+    return JSON.parse(localStorage.getItem("evaluations")) || {};
+  } catch (error) {
+    return {};
+  }
+}
+
+const evaluations = readEvaluations();
+const evaluation = evaluations[usn] || evaluations[usn.toUpperCase()];
+
+if (evaluation && evaluation.score !== undefined) {
+  const score = Number(evaluation.score);
+
+  if (Number.isFinite(score) && score >= 0 && score <= 100) {
+    document.getElementById("score").textContent = score + " / 100";
+    document.getElementById("scoreBar").style.width = score + "%";
+  }
+
+  document.getElementById("feedback").textContent =
+    evaluation.feedback || "No written feedback provided.";
+
+  if (evaluation.updatedAt) {
+    document.getElementById("updatedAt").textContent =
+      "Last updated: " + evaluation.updatedAt;
+  }
+} else {
+  document.getElementById("emptyMessage").hidden = false;
+}
+</script>
+</body>
+</html>

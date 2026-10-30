@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benchmark Marks Management - AI Internship System</title>
+
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { margin: 0; background: #f0f4f9; color: #1e293b; }
+        
+        header {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white; padding: 18px 32px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+        }
+        header h2 { margin: 0; font-size: 21px; display: flex; align-items: center; gap: 8px; }
+        
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .user-tag { background: rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; }
+        .logout {
+            background: white; color: #0369a1; border: none;
+            padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;
+            transition: background 0.2s;
+        }
+        .logout:hover { background: #e0f2fe; }
+
+        .container { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+        
+        .top-nav {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 22px; flex-wrap: wrap; gap: 12px;
+        }
+        .back-btn {
+            background: #64748b; color: white; border: none;
+            padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+        }
+        .back-btn:hover { background: #475569; }
+
+        .export-btn {
+            background: #059669; color: white; border: none;
+            padding: 9px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+            box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+        }
+        .export-btn:hover { background: #047857; }
+
+        .title-card {
+            background: white; border-radius: 12px; padding: 22px 26px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 24px;
+        }
+        .title-card h1 { margin: 0 0 6px 0; color: #0f172a; font-size: 24px; }
+        .title-card p { margin: 0; color: #64748b; font-size: 14.5px; }
+
+        .scheme-benchmarks {
+            display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap;
+        }
+        .scheme-badge {
+            background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px;
+            padding: 7px 12px; font-size: 13px; font-weight: 600; color: #334155;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .scheme-badge span { color: #0284c7; font-weight: 700; }
+
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px; margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white; padding: 20px; border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 4px solid #0284c7;
+        }
+        .stat-card h3 { margin: 0; font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-card .value { font-size: 26px; font-weight: 700; color: #0f172a; margin-top: 6px; }
+
+        .controls-row {
+            display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;
+        }
+        .search-box {
+            flex: 1; min-width: 260px; padding: 11px 16px; border: 1px solid #cbd5e1;
+            border-radius: 8px; font-size: 14.5px; outline: none; background: white;
+        }
+        .search-box:focus { border-color: #0284c7; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
+        .filter-select {
+            padding: 11px 16px; border: 1px solid #cbd5e1; border-radius: 8px;
+            font-size: 14px; background: white; color: #334155; outline: none;
+        }
+
+        .table-container {
+            background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 1050px; }
+        th, td { padding: 13px 16px; text-align: left; font-size: 13.5px; border-bottom: 1px solid #f1f5f9; }
+        th { background: #f8fafc; color: #475569; font-weight: 700; white-space: nowrap; border-bottom: 2px solid #e2e8f0; }
+        tbody tr:hover { background: #f8fafc; }
+
+        .badge {
+            display: inline-block; padding: 4px 9px; border-radius: 6px;
+            font-size: 12px; font-weight: 700; text-align: center;
+        }
+        .badge-approved { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .badge-published { background: #dcfce7; color: #15803d; }
+        .badge-draft { background: #fef3c7; color: #b45309; }
+        .badge-pending { background: #f1f5f9; color: #64748b; }
+        
+        .grade-badge {
+            display: inline-block; padding: 4px 8px; border-radius: 4px;
+            font-weight: 800; font-size: 12.5px; background: #e0f2fe; color: #0369a1;
+        }
+
+        .score-pill {
+            font-weight: 600; color: #1e293b;
+        }
+        .score-pill.pending {
+            color: #94a3b8; font-weight: 400; font-style: italic;
+        }
+
+        .approve-btn {
+            background: #16a34a; color: white; border: none;
+            padding: 7px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 700;
+            transition: background 0.2s; white-space: nowrap; margin-right: 6px;
+        }
+        .approve-btn:hover { background: #15803d; }
+        .approve-btn.approved {
+            background: #dcfce7; color: #15803d; border: 1px solid #86efac; cursor: default;
+        }
+
+        .eval-btn {
+            background: #0284c7; color: white; border: none;
+            padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;
+            transition: background 0.2s; white-space: nowrap;
+        }
+        .eval-btn:hover { background: #0369a1; }
+
+        /* Modal */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+            justify-content: center; align-items: center; z-index: 9999;
+        }
+        .modal-content {
+            background: white; width: 92%; max-width: 680px; padding: 28px;
+            border-radius: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #e2e8f0; padding-bottom: 14px; margin-bottom: 20px;
+        }
+        .modal-header h3 { margin: 0; color: #0f172a; font-size: 20px; }
+        .close-btn { background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b; }
+
+        .student-banner {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+            padding: 14px 18px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr;
+            gap: 10px; font-size: 13.5px;
+        }
+        .student-banner div strong { color: #334155; }
+
+        .comp-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px;
+        }
+        .comp-input-card {
+            background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .comp-input-card label {
+            display: flex; justify-content: space-between; font-weight: 600;
+            font-size: 13px; color: #1e293b; margin-bottom: 6px;
+        }
+        .comp-input-card label span { color: #0284c7; font-weight: 700; }
+        .comp-input-card input {
+            width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1;
+            border-radius: 6px; font-size: 14px; outline: none; font-weight: 600;
+        }
+        .comp-input-card input:focus { border-color: #0284c7; }
+
+        .calc-preview {
+            background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;
+            padding: 14px 18px; margin-bottom: 20px; display: flex;
+            justify-content: space-around; align-items: center; text-align: center;
+        }
+        .calc-preview div strong { display: block; font-size: 20px; color: #15803d; font-weight: 800; }
+        .calc-preview div span { font-size: 12px; color: #166534; font-weight: 600; text-transform: uppercase; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-weight: 600; font-size: 13.5px; margin-bottom: 6px; color: #334155; }
+        .form-group textarea, .form-group select {
+            width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;
+            font-size: 14px; outline: none;
+        }
+
+        .modal-actions {
+            display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;
+        }
+        .cancel-btn {
+            background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;
+            padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: 600;
+        }
+        .save-draft-btn {
+            background: #f59e0b; color: white; border: none;
+            padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: 600;
+        }
+        .publish-btn {
+            background: #0284c7; color: white; border: none;
+            padding: 9px 22px; border-radius: 6px; cursor: pointer; font-weight: 700;
+        }
+        .publish-btn:hover { background: #0369a1; }
+        .save-draft-btn:hover { background: #d97706; }
+
+        #modalAlert { display: none; padding: 10px 14px; border-radius: 6px; font-size: 13.5px; margin-bottom: 14px; }
+        .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .alert-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>📊 <span id="portalRoleHeader">Faculty</span> Internship Marks & Benchmarks</h2>
+    <div class="header-right">
+        <span class="user-tag" id="userBadge">Guide</span>
+        <button class="logout" onclick="logout()">Logout</button>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="top-nav">
+        <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
+        <button class="export-btn" onclick="exportCSV()">📥 Export Marks (CSV)</button>
+    </div>
+
+    <div class="title-card">
+        <h1 id="pageTitle">Internship Benchmark Assessment & Marks Entry</h1>
+        <p>Comprehensive 5-Component Continuous Evaluation Scheme (Total: 100 Marks) for Academic Year 2026.</p>
+        
+        <div class="scheme-benchmarks">
+            <div class="scheme-badge">1. Internal Assessment: <span>Max 20 M</span></div>
+            <div class="scheme-badge">2. Assignment: <span>Max 10 M</span></div>
+            <div class="scheme-badge">3. Attendance: <span>Max 10 M</span></div>
+            <div class="scheme-badge">4. Project Work: <span>Max 20 M</span></div>
+            <div class="scheme-badge">5. Final Evaluation: <span>Max 40 M</span></div>
+            <div class="scheme-badge" style="background:#e0f2fe; border-color:#bae6fd;">Total Benchmark: <span style="color:#0369a1;">100 Marks</span></div>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Assigned Students</h3>
+            <div class="value" id="statTotalStudents">0</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #10b981;">
+            <h3>Marks Evaluated</h3>
+            <div class="value" id="statEvaluated">0</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #f59e0b;">
+            <h3>Evaluation Pending</h3>
+            <div class="value" id="statPending">0</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #8b5cf6;">
+            <h3>Batch Average</h3>
+            <div class="value" id="statAvgScore">0%</div>
+        </div>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="controls-row">
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search student by USN, Name, Company, or Guide..." oninput="filterTable()">
+        <select id="statusFilter" class="filter-select" onchange="filterTable()">
+            <option value="ALL">All Evaluation Statuses</option>
+            <option value="Approved">Approved</option>
+            <option value="Published">Published</option>
+            <option value="Draft">Draft</option>
+            <option value="Not Evaluated">Not Evaluated</option>
+        </select>
+    </div>
+
+    <!-- Marks Table -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student USN</th>
+                    <th>Name</th>
+                    <th>Company</th>
+                    <th>Guide</th>
+                    <th>Internal (20)</th>
+                    <th>Assign (10)</th>
+                    <th>Attd (10)</th>
+                    <th>Proj (20)</th>
+                    <th>Final (40)</th>
+                    <th>Total (100)</th>
+                    <th>% & Grade</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="marksTableBody">
+                <tr><td colspan="13" style="text-align:center; padding:25px; color:#64748b;">Loading students and benchmark records...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- Marks Entry / Edit Modal -->
+<div id="marksModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">Evaluate Student Benchmark Marks</h3>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+
+        <div id="modalAlert"></div>
+
+        <div class="student-banner">
+            <div><strong>Student Name:</strong> <span id="mStuName">-</span></div>
+            <div><strong>USN:</strong> <span id="mStuUSN">-</span></div>
+            <div><strong>Company:</strong> <span id="mStuCompany">-</span></div>
+            <div><strong>Faculty Guide:</strong> <span id="mStuGuide">-</span></div>
+        </div>
+
+        <form id="marksForm" onsubmit="handleFormSubmit(event)">
+            <input type="hidden" id="mInternshipId">
+            
+            <div class="comp-grid">
+                <!-- 1. Internal Assessment -->
+                <div class="comp-input-card">
+                    <label>Internal Assessment <span>/ 20</span></label>
+                    <input type="number" id="comp_1" min="0" max="20" step="0.5" placeholder="0 - 20" required oninput="recalcLiveScore()">
+                </div>
+                <!-- 2. Assignment -->
+                <div class="comp-input-card">
+                    <label>Assignment <span>/ 10</span></label>
+                    <input type="number" id="comp_2" min="0" max="10" step="0.5" placeholder="0 - 10" required oninput="recalcLiveScore()">
+                </div>
+                <!-- 3. Attendance -->
+                <div class="comp-input-card">
+                    <label>Attendance <span>/ 10</span></label>
+                    <input type="number" id="comp_3" min="0" max="10" step="0.5" placeholder="0 - 10" required oninput="recalcLiveScore()">
+                </div>
+                <!-- 4. Project Work -->
+                <div class="comp-input-card">
+                    <label>Project Work <span>/ 20</span></label>
+                    <input type="number" id="comp_4" min="0" max="20" step="0.5" placeholder="0 - 20" required oninput="recalcLiveScore()">
+                </div>
+            </div>
+
+            <!-- 5. Final Evaluation (Span Full) -->
+            <div class="comp-input-card" style="margin-bottom:18px;">
+                <label>Final Evaluation (Viva & Project Appraisal) <span>/ 40</span></label>
+                <input type="number" id="comp_5" min="0" max="40" step="0.5" placeholder="0 - 40" required oninput="recalcLiveScore()">
+            </div>
+
+            <!-- Live Calculation Preview -->
+            <div class="calc-preview">
+                <div>
+                    <strong id="liveTotal">0.0 / 100</strong>
+                    <span>Total Marks</span>
+                </div>
+                <div>
+                    <strong id="livePercentage">0%</strong>
+                    <span>Percentage</span>
+                </div>
+                <div>
+                    <strong id="liveGrade">-</strong>
+                    <span>Calculated Grade</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Evaluator Remarks & Technical Appraisal</label>
+                <textarea id="mRemarks" rows="2" placeholder="e.g. Excellent domain implementation and viva presentation."></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+                <button type="button" class="save-draft-btn" onclick="saveWithStatus('Draft')">Save as Draft</button>
+                <button type="button" id="adminModalApproveBtn" class="approve-btn" style="display:none; padding:9px 18px; border-radius:6px;" onclick="saveWithStatus('Approved')">✓ Approve Marks</button>
+                <button type="submit" class="publish-btn" id="publishBtn">Publish Marks</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let currentRole = "faculty";
+    let currentUser = "";
+    let rawStudents = [];
+    let activeComponents = [];
+    let activeEditingStudent = null;
+
+    // Check Authentication & User Profile
+    function initUser() {
+        const storedRole = sessionStorage.getItem("userRole");
+        const storedUser = sessionStorage.getItem("username");
+
+        fetch("/api/me")
+            .then(r => {
+                if (!r.ok) throw new Error("Not authenticated");
+                return r.json();
+            })
+            .then(user => {
+                if (!user || user.error || (!user.username && !user.user_id)) {
+                    if (!storedUser) {
+                        window.location.href = "/login";
+                        return;
+                    }
+                }
+                currentUser = (user && user.username) ? user.username : (storedUser || "");
+                currentRole = (user && (user.role || user.user_role)) ? (user.role || user.user_role) : (storedRole || "faculty");
+
+                const roleLabel = (currentRole === "administrator") ? "Administrator" : "Faculty Guide";
+                document.getElementById("userBadge").innerText = `${roleLabel} (${currentUser})`;
+                document.getElementById("portalRoleHeader").innerText = (currentRole === "administrator") ? "Admin" : "Faculty";
+                
+                if (currentRole === "administrator") {
+                    document.getElementById("pageTitle").innerText = "Institutional Marks & Benchmark Management";
+                }
+                loadMarksData();
+            })
+            .catch(() => {
+                if (storedUser && (storedRole === "faculty" || storedRole === "administrator")) {
+                    currentUser = storedUser;
+                    currentRole = storedRole;
+                    const roleLabel = (currentRole === "administrator") ? "Administrator" : "Faculty Guide";
+                    document.getElementById("userBadge").innerText = `${roleLabel} (${currentUser})`;
+                    document.getElementById("portalRoleHeader").innerText = (currentRole === "administrator") ? "Admin" : "Faculty";
+                    loadMarksData();
+                } else {
+                    window.location.href = "/login";
+                }
+            });
+    }
+    initUser();
+
+    function goBack() {
+        if (currentRole === "administrator") {
+            window.location.href = "/admin-dashboard.html";
+        } else {
+            window.location.href = "/faculty-dashboard.html";
+        }
+    }
+
+    function logout() {
+        fetch("/api/logout").then(() => {
+            sessionStorage.clear();
+            window.location.href = "/login";
+        });
+    }
+
+    function exportCSV() {
+        window.location.href = "/api/marks/export-csv";
+    }
+
+    function loadMarksData() {
+        fetch("/api/marks")
+            .then(r => r.json())
+            .then(data => {
+                activeComponents = data.components || [];
+                rawStudents = data.students || [];
+                updateStats(rawStudents);
+                renderTable(rawStudents);
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById("marksTableBody").innerHTML = 
+                    `<tr><td colspan="13" style="text-align:center; padding:25px; color:#ef4444;">Failed to load student benchmark marks. Please try refreshing.</td></tr>`;
+            });
+    }
+
+    function updateStats(students) {
+        const total = students.length;
+        let evaluatedCount = 0;
+        let totalPctSum = 0;
+
+        students.forEach(s => {
+            if (s.status === "Approved" || s.status === "Published" || s.status === "Draft") {
+                evaluatedCount++;
+                totalPctSum += s.overall_percentage;
+            }
+        });
+
+        const pending = total - evaluatedCount;
+        const avgPct = evaluatedCount > 0 ? (totalPctSum / evaluatedCount).toFixed(1) : 0;
+
+        document.getElementById("statTotalStudents").innerText = total;
+        document.getElementById("statEvaluated").innerText = evaluatedCount;
+        document.getElementById("statPending").innerText = pending;
+        document.getElementById("statAvgScore").innerText = `${avgPct}%`;
+    }
+
+    function renderTable(students) {
+        const tbody = document.getElementById("marksTableBody");
+        if (!students || students.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding:25px; color:#64748b;">No students found for benchmark evaluation.</td></tr>`;
+            return;
+        }
+
+        let html = "";
+        students.forEach((s, idx) => {
+            // Find component marks
+            const compMap = {};
+            (s.components || []).forEach(c => {
+                compMap[c.component_id] = c;
+            });
+
+            const c1 = compMap[1] ? formatCompScore(compMap[1]) : `<span class="score-pill pending">-</span>`;
+            const c2 = compMap[2] ? formatCompScore(compMap[2]) : `<span class="score-pill pending">-</span>`;
+            const c3 = compMap[3] ? formatCompScore(compMap[3]) : `<span class="score-pill pending">-</span>`;
+            const c4 = compMap[4] ? formatCompScore(compMap[4]) : `<span class="score-pill pending">-</span>`;
+            const c5 = compMap[5] ? formatCompScore(compMap[5]) : `<span class="score-pill pending">-</span>`;
+
+            let statusClass = "badge-pending";
+            if (s.status === "Approved") statusClass = "badge-approved";
+            else if (s.status === "Published") statusClass = "badge-published";
+            else if (s.status === "Draft") statusClass = "badge-draft";
+
+            const gradeBadge = s.overall_grade !== "-" ? `<span class="grade-badge">${s.overall_grade}</span>` : `<span style="color:#94a3b8;">-</span>`;
+
+            let approveBtnHtml = "";
+            if (currentRole === "administrator") {
+                if (s.status === "Approved") {
+                    approveBtnHtml = `<button class="approve-btn approved" disabled title="Benchmark Marks Approved">✓ Approved</button>`;
+                } else {
+                    approveBtnHtml = `<button class="approve-btn" onclick="approveStudentMarks('${s.student_usn}', '${(s.student_name || '').replace(/'/g, "\\'")}')" title="Approve Benchmark Marks for Student">✓ Approve</button>`;
+                }
+            }
+
+            html += `
+                <tr>
+                    <td><strong>${s.student_usn}</strong></td>
+                    <td>${s.student_name}</td>
+                    <td>${s.company || 'N/A'}</td>
+                    <td><small>${s.faculty_name || '-'}</small></td>
+                    <td>${c1}</td>
+                    <td>${c2}</td>
+                    <td>${c3}</td>
+                    <td>${c4}</td>
+                    <td>${c5}</td>
+                    <td><strong>${s.total_marks_obtained}</strong> <small style="color:#64748b;">/ 100</small></td>
+                    <td><strong>${s.overall_percentage}%</strong> ${gradeBadge}</td>
+                    <td><span class="badge ${statusClass}">${s.status}</span></td>
+                    <td style="white-space: nowrap;">
+                        ${approveBtnHtml}
+                        <button class="eval-btn" onclick="openEvaluateModal('${s.student_usn}')">
+                            ✏️ Evaluate
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function formatCompScore(c) {
+        if (c.marks_obtained !== null && c.marks_obtained !== undefined) {
+            return `<span class="score-pill">${c.marks_obtained}</span>`;
+        }
+        return `<span class="score-pill pending">-</span>`;
+    }
+
+    function filterTable() {
+        const q = document.getElementById("searchInput").value.toLowerCase().trim();
+        const status = document.getElementById("statusFilter").value;
+
+        const filtered = rawStudents.filter(s => {
+            const matchesQ = 
+                s.student_usn.toLowerCase().includes(q) ||
+                s.student_name.toLowerCase().includes(q) ||
+                (s.company && s.company.toLowerCase().includes(q)) ||
+                (s.faculty_name && s.faculty_name.toLowerCase().includes(q));
+
+            const matchesStatus = (status === "ALL") || (s.status === status);
+            return matchesQ && matchesStatus;
+        });
+
+        renderTable(filtered);
+    }
+
+    function openEvaluateModal(usn) {
+        activeEditingStudent = rawStudents.find(s => s.student_usn === usn);
+        if (!activeEditingStudent) return;
+
+        document.getElementById("modalAlert").style.display = "none";
+        document.getElementById("mStuName").innerText = activeEditingStudent.student_name;
+        document.getElementById("mStuUSN").innerText = activeEditingStudent.student_usn;
+        document.getElementById("mStuCompany").innerText = activeEditingStudent.company || 'N/A';
+        document.getElementById("mStuGuide").innerText = activeEditingStudent.faculty_name || '-';
+        document.getElementById("mInternshipId").value = activeEditingStudent.internship_id || 0;
+
+        // Reset inputs
+        const compMap = {};
+        let existingRemarks = "";
+        (activeEditingStudent.components || []).forEach(c => {
+            compMap[c.component_id] = c;
+            if (c.remarks && !existingRemarks) existingRemarks = c.remarks;
+        });
+
+        document.getElementById("comp_1").value = compMap[1] && compMap[1].marks_obtained !== null ? compMap[1].marks_obtained : "";
+        document.getElementById("comp_2").value = compMap[2] && compMap[2].marks_obtained !== null ? compMap[2].marks_obtained : "";
+        document.getElementById("comp_3").value = compMap[3] && compMap[3].marks_obtained !== null ? compMap[3].marks_obtained : "";
+        document.getElementById("comp_4").value = compMap[4] && compMap[4].marks_obtained !== null ? compMap[4].marks_obtained : "";
+        document.getElementById("comp_5").value = compMap[5] && compMap[5].marks_obtained !== null ? compMap[5].marks_obtained : "";
+        document.getElementById("mRemarks").value = existingRemarks;
+
+        const adminBtn = document.getElementById("adminModalApproveBtn");
+        if (adminBtn) {
+            adminBtn.style.display = (currentRole === "administrator") ? "inline-block" : "none";
+        }
+
+        recalcLiveScore();
+        document.getElementById("marksModal").style.display = "flex";
+    }
+
+    function closeModal() {
+        document.getElementById("marksModal").style.display = "none";
+        activeEditingStudent = null;
+    }
+
+    function recalcLiveScore() {
+        const v1 = parseFloat(document.getElementById("comp_1").value) || 0;
+        const v2 = parseFloat(document.getElementById("comp_2").value) || 0;
+        const v3 = parseFloat(document.getElementById("comp_3").value) || 0;
+        const v4 = parseFloat(document.getElementById("comp_4").value) || 0;
+        const v5 = parseFloat(document.getElementById("comp_5").value) || 0;
+
+        const total = v1 + v2 + v3 + v4 + v5;
+        const pct = total.toFixed(1);
+
+        let grade = "F";
+        if (total >= 90) grade = "A+";
+        else if (total >= 80) grade = "A";
+        else if (total >= 70) grade = "B+";
+        else if (total >= 60) grade = "B";
+        else if (total >= 50) grade = "C";
+        else if (total >= 40) grade = "P";
+
+        document.getElementById("liveTotal").innerText = `${total.toFixed(1)} / 100`;
+        document.getElementById("livePercentage").innerText = `${pct}%`;
+        document.getElementById("liveGrade").innerText = grade;
+    }
+
+    function handleFormSubmit(e) {
+        e.preventDefault();
+        saveMarksPayload("Published");
+    }
+
+    function saveWithStatus(status) {
+        saveMarksPayload(status);
+    }
+
+    function saveMarksPayload(status) {
+        if (!activeEditingStudent) return;
+
+        const v1 = parseFloat(document.getElementById("comp_1").value);
+        const v2 = parseFloat(document.getElementById("comp_2").value);
+        const v3 = parseFloat(document.getElementById("comp_3").value);
+        const v4 = parseFloat(document.getElementById("comp_4").value);
+        const v5 = parseFloat(document.getElementById("comp_5").value);
+
+        if (isNaN(v1) || isNaN(v2) || isNaN(v3) || isNaN(v4) || isNaN(v5)) {
+            showAlert("Please enter valid marks for all 5 assessment components.", "alert-error");
+            return;
+        }
+
+        if (v1 > 20 || v2 > 10 || v3 > 10 || v4 > 20 || v5 > 40) {
+            showAlert("One or more component marks exceed the maximum permitted limits.", "alert-error");
+            return;
+        }
+
+        const remarks = document.getElementById("mRemarks").value.trim();
+
+        const payload = {
+            student_usn: activeEditingStudent.student_usn,
+            internship_id: activeEditingStudent.internship_id || 0,
+            status: status,
+            marks: [
+                { component_id: 1, marks_obtained: v1, remarks: remarks },
+                { component_id: 2, marks_obtained: v2, remarks: remarks },
+                { component_id: 3, marks_obtained: v3, remarks: remarks },
+                { component_id: 4, marks_obtained: v4, remarks: remarks },
+                { component_id: 5, marks_obtained: v5, remarks: remarks }
+            ]
+        };
+
+        const alertBox = document.getElementById("modalAlert");
+        showAlert("Saving benchmark marks...", "alert-success");
+
+        fetch("/api/marks", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                showAlert(res.message || "Marks recorded successfully!", "alert-success");
+                setTimeout(() => {
+                    closeModal();
+                    loadMarksData();
+                }, 1000);
+            } else {
+                showAlert(res.error || "Failed to save marks.", "alert-error");
+            }
+        })
+        .catch(() => {
+            showAlert("Server error while recording marks.", "alert-error");
+        });
+    }
+
+    function showAlert(msg, className) {
+        const el = document.getElementById("modalAlert");
+        el.className = className;
+        el.innerText = msg;
+        el.style.display = "block";
+    }
+
+    function approveStudentMarks(usn, name) {
+        if (!confirm(`Are you sure you want to approve the benchmark marks for student ${name || usn}?`)) return;
+        fetch("/api/marks/approve/" + encodeURIComponent(usn), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" }
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                loadMarksData();
+            } else {
+                alert(res.error || "Failed to approve benchmark marks.");
+            }
+        })
+        .catch(() => alert("Server error approving benchmark marks."));
+    }
+</script>
+
+</body>
+</html>

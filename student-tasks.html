@@ -1,0 +1,350 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Tasks</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f3f6fb;
+            color: #263238;
+        }
+
+        header {
+            background: #173b70;
+            color: white;
+            padding: 22px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin-bottom: 8px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px #00000012;
+        }
+
+        h2 {
+            color: #173b70;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin: 14px 0 7px;
+            font-weight: bold;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccd3dd;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            margin-top: 18px;
+        }
+
+        .submit-btn {
+            background: #173b70;
+            color: white;
+        }
+
+        .submit-btn:hover {
+            background: #24559a;
+        }
+
+        .back-btn {
+            background: #e1e7ef;
+            color: #173b70;
+            margin-bottom: 20px;
+            margin-top: 0;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 13px;
+            border-bottom: 1px solid #e1e5eb;
+            text-align: left;
+        }
+
+        th {
+            background: #eaf0fa;
+            color: #173b70;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .empty {
+            color: #777;
+            padding: 15px 0;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 12px;
+                margin: 15px auto;
+            }
+
+            .card {
+                padding: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Internship Task Management</h1>
+    <p>Submit and track your internship tasks</p>
+</header>
+
+<div class="container">
+
+    <button class="back-btn" onclick="goBack()">
+        ← Back to Dashboard
+    </button>
+
+    <div class="card">
+        <h2>Submit a Task</h2>
+
+        <form id="taskForm">
+
+            <label for="taskTitle">Task Title</label>
+            <input
+                type="text"
+                id="taskTitle"
+                placeholder="Enter task title"
+                required
+            >
+
+            <label for="taskDescription">Task Description</label>
+            <textarea
+                id="taskDescription"
+                placeholder="Describe the work you completed"
+                required
+            ></textarea>
+
+            <label for="taskDate">Submission Date</label>
+            <input type="date" id="taskDate" required>
+
+            <label for="taskStatus">Task Status</label>
+            <select id="taskStatus" required>
+                <option value="Submitted">Submitted</option>
+                <option value="In Progress">In Progress</option>
+            </select>
+
+            <button type="submit" class="submit-btn">
+                Submit Task
+            </button>
+
+            <p id="message" class="message"></p>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>My Submitted Tasks</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Task Title</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody id="taskTable"></tbody>
+            </table>
+        </div>
+
+        <p id="emptyMessage" class="empty">
+            No tasks submitted yet.
+        </p>
+    </div>
+
+</div>
+
+<script>
+    // Check whether a student is logged in
+    const role = localStorage.getItem("userRole");
+    const usn = localStorage.getItem("username");
+
+    if (role !== "student" || !usn) {
+        alert("Please log in using your student account.");
+        window.location.href = "/login";
+    }
+
+    // Set today's date automatically
+    document.getElementById("taskDate").value =
+        new Date().toISOString().split("T")[0];
+
+    // Load tasks belonging to the logged-in student
+    function loadTasks() {
+        const allTasks =
+            JSON.parse(localStorage.getItem("taskSubmissions")) || [];
+
+        const myTasks = allTasks.filter(task =>
+            task.usn &&
+            task.usn.toLowerCase() === usn.toLowerCase()
+        );
+
+        const table = document.getElementById("taskTable");
+        const emptyMessage = document.getElementById("emptyMessage");
+
+        table.innerHTML = "";
+
+        if (myTasks.length === 0) {
+            emptyMessage.style.display = "block";
+            return;
+        }
+
+        emptyMessage.style.display = "none";
+
+        myTasks.slice().reverse().forEach(task => {
+            const row = document.createElement("tr");
+
+            [
+                task.title,
+                task.description,
+                task.date,
+                task.status
+            ].forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value || "";
+                row.appendChild(cell);
+            });
+
+            table.appendChild(row);
+        });
+    }
+
+    // Save a new task
+    document.getElementById("taskForm").addEventListener(
+        "submit",
+        function(event) {
+            event.preventDefault();
+
+            const title =
+                document.getElementById("taskTitle").value.trim();
+
+            const description =
+                document.getElementById("taskDescription").value.trim();
+
+            const date =
+                document.getElementById("taskDate").value;
+
+            const status =
+                document.getElementById("taskStatus").value;
+
+            if (!title || !description || !date) {
+                document.getElementById("message").textContent =
+                    "Please fill in all the fields.";
+                return;
+            }
+
+            const allTasks =
+                JSON.parse(localStorage.getItem("taskSubmissions")) || [];
+
+            const newTask = {
+                usn: usn,
+                title: title,
+                description: description,
+                date: date,
+                status: status,
+                submittedAt: new Date().toISOString()
+            };
+
+            allTasks.push(newTask);
+
+            localStorage.setItem(
+                "taskSubmissions",
+                JSON.stringify(allTasks)
+            );
+
+            // Update the student's task count
+            const taskCounts =
+                JSON.parse(localStorage.getItem("tasks")) || {};
+
+            taskCounts[usn] = allTasks.filter(task =>
+                task.usn &&
+                task.usn.toLowerCase() === usn.toLowerCase()
+            ).length;
+
+            localStorage.setItem("tasks", JSON.stringify(taskCounts));
+
+            document.getElementById("message").textContent =
+                "Task submitted successfully!";
+
+            document.getElementById("message").style.color = "green";
+
+            document.getElementById("taskForm").reset();
+
+            document.getElementById("taskDate").value =
+                new Date().toISOString().split("T")[0];
+
+            loadTasks();
+        }
+    );
+
+    function goBack() {
+        window.location.href = "/student/dashboard";
+    }
+
+    // Display previously saved tasks
+    loadTasks();
+</script>
+
+</body>
+</html>

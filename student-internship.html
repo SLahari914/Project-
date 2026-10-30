@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Internship - AI Internship System</title>
+<style>
+* { box-sizing: border-box; font-family: Arial, sans-serif; }
+body {
+  margin: 0;
+  background: #f1f7ff;
+  color: #222;
+}
+header {
+  background: linear-gradient(135deg, #2196f3, #1565c0);
+  color: white;
+  padding: 18px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+header h2 { margin: 0; font-size: 21px; }
+.logout {
+  background: white;
+  color: #1565c0;
+  border: none;
+  padding: 9px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.container { max-width: 950px; margin: 30px auto; padding: 0 20px; }
+.back-btn {
+  background: #607d8b;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.back-btn:hover { background: #455a64; }
+.card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  margin-bottom: 22px;
+}
+h2.card-title {
+  margin-top: 0;
+  color: #1565c0;
+  font-size: 19px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 12px;
+  margin-bottom: 18px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.item {
+  padding: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+}
+.label {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 6px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.value {
+  font-weight: bold;
+  font-size: 15px;
+  color: #0f172a;
+  overflow-wrap: anywhere;
+}
+.status-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+}
+.status-active { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+.status-progress { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
+.status-completed { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+.status-notstarted { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+.message {
+  color: #64748b;
+  line-height: 1.6;
+  font-size: 14.5px;
+  padding: 25px;
+  text-align: center;
+}
+.sheet-modal {
+  display: none; position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%; background: rgba(0,0,0,0.65);
+  justify-content: center; align-items: flex-start;
+  overflow-y: auto; padding: 20px 10px; z-index: 9999;
+}
+.sheet-container {
+  background: white; width: 100%; max-width: 1050px;
+  border-radius: 8px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  margin: auto;
+}
+.sheet-paper {
+  background: #fff; color: #000; border: 2px solid #000;
+  padding: 24px; font-family: 'Times New Roman', Times, serif;
+}
+.sheet-header-title {
+  text-align: center; border-bottom: 2px solid #000;
+  padding-bottom: 12px; margin-bottom: 12px;
+}
+.sheet-header-title h2 {
+  margin: 0; font-size: 22px; font-weight: bold; letter-spacing: 0.5px;
+  text-transform: uppercase; color: #000;
+}
+.sheet-header-title p {
+  margin: 3px 0 0; font-size: 12px; color: #111;
+}
+.sheet-header-title h3 {
+  margin: 10px 0 0; font-size: 16px; font-weight: bold;
+  text-decoration: underline; letter-spacing: 1px; text-transform: uppercase;
+}
+.sheet-table {
+  width: 100%; border-collapse: collapse; font-family: 'Times New Roman', Times, serif;
+}
+.sheet-table th, .sheet-table td {
+  border: 1px solid #000; padding: 7px 8px;
+}
+.sheet-input {
+  width: 100%; border: 1px solid transparent; background: transparent;
+  font-family: inherit; font-size: 13px; font-weight: normal; color: #000;
+  box-sizing: border-box; padding: 2px;
+}
+.sheet-input:focus {
+  border-bottom: 1px solid #2563eb; background: #f8fafc; outline: none;
+}
+.sheet-textarea {
+  width: 100%; min-height: 44px; border: 1px solid #cbd5e1;
+  border-radius: 3px; font-family: inherit; font-size: 12px;
+  padding: 5px; box-sizing: border-box; resize: vertical;
+}
+.sheet-textarea:focus {
+  border-color: #2563eb; background: #f0fdf4; outline: none;
+}
+.week-approve-btn {
+  padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;
+  border: 1px solid #16a34a; background: #f0fdf4; color: #16a34a;
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+}
+.week-approve-btn.approved {
+  background: #16a34a; color: white; border-color: #15803d;
+}
+.week-approve-btn.pending-guide {
+  background: #fef3c7; color: #b45309; border-color: #fde68a; cursor: default;
+}
+@media print {
+  body * { visibility: hidden; }
+  #studentSheetModal, #studentSheetModal * { visibility: visible; }
+  #studentSheetModal {
+    position: absolute; left: 0; top: 0; width: 100%;
+    background: white; padding: 0; margin: 0; display: block !important;
+  }
+  .sheet-container {
+    max-width: 100% !important; width: 100% !important;
+    box-shadow: none !important; padding: 0 !important; margin: 0 !important;
+  }
+  .no-print { display: none !important; }
+  .sheet-paper { border: 2px solid #000 !important; padding: 15px !important; }
+  .sheet-textarea {
+    border: none !important; background: transparent !important;
+    resize: none !important; padding: 0 !important; font-size: 11px !important;
+  }
+  .sheet-input { border: none !important; background: transparent !important; }
+  .week-approve-btn { display: none !important; }
+  .print-approved-stamp { display: block !important; }
+}
+.print-approved-stamp { display: none; text-align: center; font-weight: bold; font-size: 11px; color: #166534; }
+</style>
+</head>
+<body>
+
+<header>
+  <h2>AI-Powered Internship System</h2>
+  <button class="logout" onclick="logout()">Logout</button>
+</header>
+
+<main class="container">
+  <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
+
+  <section class="card">
+    <h2 class="card-title">Student Profile</h2>
+    <div class="grid" id="studentDetails">
+      <div class="item"><div class="label">Loading...</div><div class="value">Fetching student data...</div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 class="card-title">Internship Assignment & Details</h2>
+    <div class="grid" id="internshipDetails"></div>
+    <div id="emptyMessage" class="message" style="display:none;">
+      <p style="font-size:16px; font-weight:bold; color:#334155; margin-bottom:8px;">No internship assigned yet</p>
+      <p style="margin:0;">No active internship record was found for your account. Please contact your assigned faculty guide or institution administrator.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+      <h2 class="card-title" style="margin: 0; border: none; padding: 0;">📋 Project Internship Progress Register (Akash Global College)</h2>
+      <button onclick="openStudentSheetModal()" style="background: #1565c0; color: white; border: none; padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 6px;">
+        👁️ View Full Progress Register Sheet
+      </button>
+    </div>
+    <p style="color: #64748b; font-size: 14px; margin: 0 0 16px 0;">
+      Official 12-week register sheet with weekly work done, internal guide remarks, and week approvals.
+    </p>
+    <div class="grid" id="studentRegisterSummary">
+      <div class="item">
+        <div class="label">Approved Weeks</div>
+        <div class="value" id="studentApprovedCount">0 / 12 Weeks Approved</div>
+      </div>
+      <div class="item">
+        <div class="label">Internship Register Status</div>
+        <div class="value" id="studentSheetStatusBadge"><span class="status-badge status-progress">In Progress</span></div>
+      </div>
+      <div class="item">
+        <div class="label">Print / Download Official Register</div>
+        <div class="value">
+          <button onclick="openAndPrintSheet()" style="background: #475569; color: white; border: none; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px;">
+            🖨️ Print / Save as PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+<!-- STUDENT PROGRESS REGISTER MODAL -->
+<div class="sheet-modal" id="studentSheetModal">
+    <div class="sheet-container">
+        <!-- Top Toolbar (Hidden when printing) -->
+        <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px;">
+            <div style="font-weight: bold; font-size: 16px; color: #1e3a8a; display: flex; align-items: center; gap: 10px;">
+                <span>📋 Project Internship Progress Register</span>
+                <span id="sheetApprovedBadge" style="font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 12px; background: #dcfce7; color: #15803d; border: 1px solid #86efac;">0 / 12 Weeks Approved</span>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" onclick="saveStudentSheet()" style="background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;">💾 Save Weekly Progress</button>
+                <button type="button" onclick="window.print()" style="background: #475569; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-weight: bold;">🖨️ Print / PDF</button>
+                <button type="button" onclick="closeStudentSheetModal()" style="background: #ef4444; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-weight: bold;">✕ Close</button>
+            </div>
+        </div>
+
+        <!-- The Akash Register Document -->
+        <div class="sheet-paper" id="sheetPaper">
+            <!-- Header -->
+            <div class="sheet-header-title">
+                <h2>AKASH GLOBAL COLLEGE OF MANAGEMENT AND SCIENCE</h2>
+                <p>Approved by AICTE New Delhi, Recognized by Govt. of Karnataka, Affiliated to Bengaluru City University</p>
+                <p>No. 43(p-1), KIA road, Doddajala, Bangalore North, Bangalore-562157</p>
+                <h3>PROJECT INTERNSHIP PROGRESS REGISTER 2025-26</h3>
+            </div>
+
+            <!-- Student Metadata Grid -->
+            <table class="sheet-table" style="margin-bottom: 14px; font-size: 13px;">
+                <tr>
+                    <td style="width: 18%; font-weight: bold; background: #f8fafc;">Name of Student:</td>
+                    <td style="width: 32%;" id="modalStudentName">-</td>
+                    <td style="width: 15%; font-weight: bold; background: #f8fafc;">USN:</td>
+                    <td style="width: 35%;" id="modalStudentUsn">-</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold; background: #f8fafc;">Contact No:</td>
+                    <td id="modalStudentPhone">-</td>
+                    <td style="font-weight: bold; background: #f8fafc;">Course / Sem:</td>
+                    <td id="modalStudentCourse">MCA / Final Year</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold; background: #f8fafc;">Name of Company / Org:</td>
+                    <td colspan="3" id="modalCompanyName">-</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold; background: #f8fafc;">Project / Internship Title:</td>
+                    <td colspan="3" id="modalProjectTitle">-</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold; background: #f8fafc;">External Guide & Contact:</td>
+                    <td id="modalExternalGuide">-</td>
+                    <td style="font-weight: bold; background: #f8fafc;">Internal Guide & Contact:</td>
+                    <td id="modalInternalGuide">-</td>
+                </tr>
+            </table>
+
+            <!-- 12-Week Table: Sl. No | Week No | Work Done / Progress | Guide Remarks | Approve -->
+            <table class="sheet-table" style="margin-bottom: 25px; font-size: 12px;">
+                <thead>
+                    <tr style="background: #f1f5f9; text-align: center;">
+                        <th style="width: 55px; text-align: center;">Sl. No</th>
+                        <th style="width: 105px; text-align: center;">Week No</th>
+                        <th style="text-align: left;">Work Done / Progress</th>
+                        <th style="width: 240px; text-align: left;">Guide Remarks</th>
+                        <th style="width: 125px; text-align: center;">Approve Status</th>
+                    </tr>
+                </thead>
+                <tbody id="sheetWeeksBody">
+                    <!-- 12 rows dynamically rendered -->
+                </tbody>
+            </table>
+
+            <!-- Signatures Section -->
+            <div style="display: flex; justify-content: space-between; margin-top: 45px; padding: 0 15px; text-align: center; font-size: 13px; font-weight: bold;">
+                <div style="width: 30%;">
+                    <div style="border-top: 1px dashed #000; padding-top: 8px;">Signature of Internal Guide</div>
+                    <div style="font-size: 11px; font-weight: normal; color: #333; margin-top: 4px;" id="modalGuideSignName">-</div>
+                </div>
+                <div style="width: 30%;">
+                    <div style="border-top: 1px dashed #000; padding-top: 8px;">Signature of HOD</div>
+                    <div style="font-size: 11px; font-weight: normal; color: #333; margin-top: 4px;">Head of Department</div>
+                </div>
+                <div style="width: 30%;">
+                    <div style="border-top: 1px dashed #000; padding-top: 8px;">Signature of Principal</div>
+                    <div style="font-size: 11px; font-weight: normal; color: #333; margin-top: 4px;">Principal / Director</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+function renderBadge(status) {
+  const s = (status || "").toLowerCase();
+  if (s === "active") {
+    return '<span class="status-badge status-active">Active</span>';
+  } else if (s.includes("progress") || s.includes("process")) {
+    return '<span class="status-badge status-progress">In Progress</span>';
+  } else if (s === "completed") {
+    return '<span class="status-badge status-completed">Completed</span>';
+  } else {
+    return `<span class="status-badge status-notstarted">${status || "Not Started"}</span>`;
+  }
+}
+
+function addItem(container, label, value, isHtml) {
+  const item = document.createElement("div");
+  item.className = "item";
+
+  const labelElement = document.createElement("div");
+  labelElement.className = "label";
+  labelElement.textContent = label;
+
+  const valueElement = document.createElement("div");
+  valueElement.className = "value";
+  if (isHtml) {
+    valueElement.innerHTML = value || "-";
+  } else {
+    valueElement.textContent = value || "Not provided";
+  }
+
+  item.append(labelElement, valueElement);
+  container.appendChild(item);
+}
+
+function loadInternshipData() {
+  fetch("/api/me")
+    .then(r => r.json())
+    .then(function(me) {
+      if (me.error || me.role !== "student") {
+        const storedRole = sessionStorage.getItem("userRole") || localStorage.getItem("userRole");
+        if (storedRole !== "student") {
+          window.location.href = "/login";
+          return;
+        }
+      }
+
+      return Promise.all([
+        fetch("/api/student/stats").then(r => r.json()),
+        fetch("/api/internships").then(r => r.json())
+      ]);
+    })
+    .then(function(results) {
+      if (!results) return;
+      const [statsData, internshipsList] = results;
+      const s = (statsData && statsData.student) || {};
+      const intern = (statsData && statsData.internship) ||
+                     (Array.isArray(internshipsList) && internshipsList[0]) ||
+                     null;
+
+      // Populate student details
+      const studentDetails = document.getElementById("studentDetails");
+      studentDetails.innerHTML = "";
+      addItem(studentDetails, "Full Name", s.name || sessionStorage.getItem("userName") || "-");
+      addItem(studentDetails, "USN", s.usn || sessionStorage.getItem("username") || "-");
+      addItem(studentDetails, "Login ID", s.login_id || sessionStorage.getItem("loginId") || "-");
+      addItem(studentDetails, "Course & Semester", `${s.course || "BCA"} - ${s.semester || "Semester"}`);
+      addItem(studentDetails, "Email Address", s.email || sessionStorage.getItem("userEmail") || "-");
+      addItem(studentDetails, "Contact Number", s.phone || "-");
+
+      // Populate internship details
+      const internshipDetails = document.getElementById("internshipDetails");
+      const emptyMsg = document.getElementById("emptyMessage");
+      internshipDetails.innerHTML = "";
+
+      if (intern && (intern.company || intern.title)) {
+        emptyMsg.style.display = "none";
+        addItem(internshipDetails, "Company Name", intern.company || s.company || "-");
+        addItem(internshipDetails, "Internship Title", intern.title || "Internship Project");
+        addItem(internshipDetails, "Faculty Guide", intern.faculty_name || intern.faculty_id || "Assigned Guide");
+        addItem(internshipDetails, "Start Date", intern.start_date || "-");
+        addItem(internshipDetails, "End Date", intern.end_date || "-");
+        addItem(internshipDetails, "Internship Status", renderBadge(intern.status || s.status), true);
+      } else if (s.company) {
+        emptyMsg.style.display = "none";
+        addItem(internshipDetails, "Company Name", s.company);
+        addItem(internshipDetails, "Internship Title", "Internship");
+        addItem(internshipDetails, "Internship Status", renderBadge(s.status), true);
+      } else {
+        emptyMsg.style.display = "block";
+      }
+    })
+    .catch(function(err) {
+      console.error("Error loading internship:", err);
+      document.getElementById("emptyMessage").style.display = "block";
+    });
+}
+
+function goBack() {
+  window.location.href = "/student/dashboard";
+}
+
+function logout() {
+  fetch("/api/logout").then(() => {
+    sessionStorage.clear();
+    localStorage.clear();
+    window.location.href = "/login";
+  });
+}
+
+let currentStudentUsn = null;
+let currentSheetData = null;
+
+function loadStudentSheetSummary() {
+  fetch("/api/student/progress-sheet")
+    .then(r => r.json())
+    .then(function(res) {
+      if (res.error) return;
+      const stu = res.student || {};
+      currentStudentUsn = stu.usn || "";
+      const savedSheet = res.sheet;
+      const updates = res.updates || [];
+
+      let weeks = [];
+      if (savedSheet && Array.isArray(savedSheet.weeks) && savedSheet.weeks.length === 12) {
+        weeks = savedSheet.weeks;
+      } else {
+        for (let i = 1; i <= 12; i++) {
+          const wStr = "Week - " + (i < 10 ? "0" + i : i);
+          let defWork = "";
+          if (updates[i - 1]) {
+            defWork = updates[i - 1].work_done || updates[i - 1].description || "";
+          }
+          weeks.push({
+            sl: i,
+            week: wStr,
+            work: defWork,
+            remarks: "",
+            approved: false
+          });
+        }
+      }
+      currentSheetData = {
+        meta: (savedSheet && savedSheet.meta) || {
+          student_name: stu.name || "",
+          student_usn: stu.usn || "",
+          student_phone: stu.phone || "",
+          student_course: stu.course || "MCA / Final Year",
+          company: stu.company || "",
+          title: stu.title || "",
+          external_guide: stu.external_guide || "",
+          internal_guide: stu.faculty_name || ""
+        },
+        weeks: weeks
+      };
+
+      const approvedCount = weeks.filter(w => w.approved).length;
+      const countEl = document.getElementById("studentApprovedCount");
+      if (countEl) countEl.innerText = `${approvedCount} / 12 Weeks Approved`;
+
+      const badgeEl = document.getElementById("studentSheetStatusBadge");
+      if (badgeEl) {
+        if (approvedCount === 12) {
+          badgeEl.innerHTML = '<span class="status-badge status-active">✓ Fully Approved</span>';
+        } else if (approvedCount > 0) {
+          badgeEl.innerHTML = `<span class="status-badge status-progress">${approvedCount} Weeks Approved</span>`;
+        } else {
+          badgeEl.innerHTML = '<span class="status-badge status-notstarted">Pending Guide Approval</span>';
+        }
+      }
+    })
+    .catch(() => {});
+}
+
+function openStudentSheetModal() {
+  if (!currentSheetData) {
+    fetch("/api/student/progress-sheet")
+      .then(r => r.json())
+      .then(function(res) {
+        loadStudentSheetSummary();
+        showSheetModal();
+      })
+      .catch(() => alert("Failed to load progress register sheet."));
+  } else {
+    showSheetModal();
+  }
+}
+
+function showSheetModal() {
+  if (!currentSheetData) return;
+  const meta = currentSheetData.meta || {};
+  document.getElementById("modalStudentName").innerText = meta.student_name || "-";
+  document.getElementById("modalStudentUsn").innerText = meta.student_usn || "-";
+  document.getElementById("modalStudentPhone").innerText = meta.student_phone || "-";
+  document.getElementById("modalStudentCourse").innerText = meta.student_course || "MCA / Final Year";
+  document.getElementById("modalCompanyName").innerText = meta.company || "-";
+  document.getElementById("modalProjectTitle").innerText = meta.title || "-";
+  document.getElementById("modalExternalGuide").innerText = meta.external_guide || "-";
+  document.getElementById("modalInternalGuide").innerText = meta.internal_guide || "Faculty Guide";
+  document.getElementById("modalGuideSignName").innerText = meta.internal_guide || "Faculty Guide";
+
+  renderStudentSheetWeeks();
+  document.getElementById("studentSheetModal").style.display = "flex";
+}
+
+function renderStudentSheetWeeks() {
+  if (!currentSheetData || !currentSheetData.weeks) return;
+  const tbody = document.getElementById("sheetWeeksBody");
+  tbody.innerHTML = "";
+  let approvedCount = 0;
+
+  currentSheetData.weeks.forEach(function(w, idx) {
+    if (w.approved) approvedCount++;
+    const isApproved = !!w.approved;
+    const statusBadge = isApproved
+      ? '<span class="week-approve-btn approved">✓ Approved</span>'
+      : '<span class="week-approve-btn pending-guide">⏳ Pending Guide</span>';
+
+    const printStamp = isApproved
+      ? '<div class="print-approved-stamp">✓ APPROVED<br><small style="font-size:9px;">GUIDE SIGNED</small></div>'
+      : '<div class="print-approved-stamp" style="color:#94a3b8;">Pending</div>';
+
+    // If approved, student cannot edit; if pending, student can update weekly progress
+    const workInput = isApproved
+      ? `<div style="padding:6px; font-size:12px; line-height:1.4; color:#0f172a;">${escapeHtml(w.work || "-")}</div>`
+      : `<textarea class="sheet-textarea" id="studentSheetWork_${idx}" placeholder="Enter work done / progress details for this week..." oninput="updateStudentSheetWork(${idx}, this.value)">${escapeHtml(w.work || "")}</textarea>`;
+
+    tbody.innerHTML += `<tr>
+      <td style="text-align: center; font-weight: bold;">${w.sl || (idx + 1)}</td>
+      <td style="text-align: center; font-weight: bold; white-space: nowrap;">${w.week || ("Week - " + (idx < 9 ? "0" + (idx + 1) : (idx + 1)))}</td>
+      <td>${workInput}</td>
+      <td style="color:#1e3a8a; font-size:12px;">${escapeHtml(w.remarks || "No remarks yet")}</td>
+      <td style="text-align: center; vertical-align: middle;">
+        ${statusBadge}
+        ${printStamp}
+      </td>
+    </tr>`;
+  });
+
+  const badge = document.getElementById("sheetApprovedBadge");
+  if (badge) {
+    badge.innerText = `${approvedCount} / 12 Weeks Approved`;
+    if (approvedCount === 12) {
+      badge.style.background = "#16a34a";
+      badge.style.color = "#ffffff";
+    } else {
+      badge.style.background = "#dcfce7";
+      badge.style.color = "#15803d";
+    }
+  }
+}
+
+function updateStudentSheetWork(idx, val) {
+  if (currentSheetData && currentSheetData.weeks[idx]) {
+    currentSheetData.weeks[idx].work = val;
+  }
+}
+
+function saveStudentSheet() {
+  if (!currentSheetData) return;
+  currentSheetData.weeks.forEach(function(w, idx) {
+    const el = document.getElementById("studentSheetWork_" + idx);
+    if (el) w.work = el.value;
+  });
+
+  fetch("/api/student/progress-sheet", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(currentSheetData)
+  })
+  .then(r => r.json())
+  .then(function(data) {
+    if (data.success) {
+      alert("✓ Weekly progress saved successfully to backend!");
+      loadStudentSheetSummary();
+    } else {
+      alert(data.error || "Failed to save weekly progress.");
+    }
+  })
+  .catch(() => alert("Server error saving progress."));
+}
+
+function openAndPrintSheet() {
+  openStudentSheetModal();
+  setTimeout(() => { window.print(); }, 400);
+}
+
+function closeStudentSheetModal() {
+  document.getElementById("studentSheetModal").style.display = "none";
+}
+
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+window.addEventListener("click", function(e) {
+  const modal = document.getElementById("studentSheetModal");
+  if (e.target === modal) closeStudentSheetModal();
+});
+
+loadInternshipData();
+loadStudentSheetSummary();
+</script>
+
+</body>
+</html>

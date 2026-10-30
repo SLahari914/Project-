@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty - Student Weekly Updates</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #333;
+        }
+
+        header {
+            background: #1565c0;
+            color: white;
+            padding: 22px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        header h1 {
+            font-size: 22px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            color: #1565c0;
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        select, input {
+            width: 100%;
+            max-width: 450px;
+            padding: 12px;
+            border: 1px solid #ccd3dd;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        button {
+            padding: 11px 17px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .back {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .filter-btn {
+            background: #1565c0;
+            color: white;
+            margin-top: 15px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        th, td {
+            padding: 13px;
+            border-bottom: 1px solid #e1e5eb;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .empty {
+            color: #777;
+            margin-top: 10px;
+        }
+
+        .summary {
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .doc-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 13px;
+            border: 1px solid #bae6fd;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .doc-btn:hover {
+            background: #0284c7;
+            color: white;
+            border-color: #0284c7;
+        }
+
+        .approve-btn {
+            background: #16a34a;
+            color: white;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .approve-btn:hover {
+            background: #15803d;
+        }
+
+        .approved-badge {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 13px;
+            display: inline-block;
+            white-space: nowrap;
+            cursor: default;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #b45309;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .badge-approved {
+            background: #dcfce7;
+            color: #15803d;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .approve-all-btn {
+            background: #16a34a;
+            color: white;
+            padding: 9px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            font-size: 13px;
+        }
+        .approve-all-btn:hover {
+            background: #15803d;
+        }
+
+        @media(max-width: 600px) {
+            header {
+                padding: 18px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .container {
+                padding: 12px;
+            }
+
+            .card {
+                padding: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Student Weekly Updates</h1>
+    <button class="back" onclick="goBack()">Back to Dashboard</button>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Filter Weekly Updates</h2>
+
+        <label for="studentFilter">Select Student</label>
+        <select id="studentFilter">
+            <option value="all">All Assigned Students</option>
+        </select>
+
+        <label for="dateFilter" style="margin-top: 18px;">
+            Filter by Date (Optional)
+        </label>
+        <input type="date" id="dateFilter">
+
+        <br>
+        <button class="filter-btn" onclick="loadUpdates()">
+            Show Updates
+        </button>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+            <h2 style="margin: 0;">Submitted Weekly Updates</h2>
+            <div>
+                <button class="approve-all-btn" onclick="approveAllFiltered()">✓ Approve All Pending Updates</button>
+            </div>
+        </div>
+        <p class="summary" id="summary">Loading updates...</p>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>USN</th>
+                        <th>Date</th>
+                        <th>Weekly Work Description</th>
+                        <th>Hours</th>
+                        <th>Uploaded Document / PDF</th>
+                        <th>Status</th>
+                        <th>Staff Feedback</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="updatesTable"></tbody>
+            </table>
+        </div>
+
+        <p class="empty" id="emptyMessage" style="display:none;">
+            No weekly updates found.
+        </p>
+    </div>
+
+</div>
+
+<!-- In-Dashboard Document & PDF Viewer Modal -->
+<div id="docViewerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:10000; padding:15px; box-sizing:border-box;">
+    <div style="background:white; width:95%; max-width:1100px; height:90vh; border-radius:12px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 15px 35px rgba(0,0,0,0.35);">
+        <!-- Modal Header -->
+        <div style="background:#1e3a8a; color:white; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-shrink:0;">
+            <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+                <span style="font-size:24px;">📄</span>
+                <div>
+                    <h3 id="docModalTitle" style="margin:0; font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:white;">Document Viewer</h3>
+                    <small id="docModalSub" style="color:#bfdbfe; font-size:12px;">Student Weekly Report</small>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center; flex-shrink:0;">
+                <a id="docModalDirectLink" href="#" target="_blank" style="background:#2563eb; color:white; padding:7px 14px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:12.5px; display:inline-flex; align-items:center; gap:5px;">
+                    🔗 Open in New Tab
+                </a>
+                <a id="docModalDownloadLink" href="#" download style="background:#0284c7; color:white; padding:7px 14px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:12.5px; display:inline-flex; align-items:center; gap:5px;">
+                    ⬇️ Download
+                </a>
+                <button type="button" onclick="closeDocViewerModal()" style="background:#ef4444; color:white; border:none; padding:7px 14px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:13px;">
+                    ✕ Close
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal Body / Content Viewer -->
+        <div id="docModalContent" style="flex:1; background:#f8fafc; padding:0; overflow:hidden; display:flex; justify-content:center; align-items:center; position:relative;">
+            <!-- Dynamic Iframe for PDF or preview container -->
+        </div>
+
+        <!-- Modal Footer -->
+        <div id="docModalFooter" style="background:#f1f5f9; padding:12px 20px; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; flex-shrink:0;">
+            <div id="docModalStatusInfo" style="font-size:13px; font-weight:600; color:#334155;"></div>
+            <div id="docModalActions" style="display:flex; gap:10px;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let allUpdates = [];
+    let allStudents = [];
+
+    fetch("/api/me")
+        .then(r => r.json())
+        .then(function(me) {
+            if (me.role !== "faculty") { window.location.href = "/login"; return; }
+            return Promise.all([
+                fetch("/api/students?faculty=" + me.username).then(r => r.json()),
+                fetch("/api/updates?faculty=" + me.username).then(r => r.json())
+            ]);
+        })
+        .then(function(results) {
+            if (!results) return;
+            const [students, updates] = results;
+            allStudents = students || [];
+            allUpdates  = updates  || [];
+
+            const sel = document.getElementById("studentFilter");
+            allStudents.forEach(function(s) {
+                sel.innerHTML += `<option value="${s.usn}">${s.name} (${s.usn})</option>`;
+            });
+            loadUpdates();
+        })
+        .catch(() => {
+            document.getElementById("summary").textContent = "Unable to load weekly updates from server.";
+        });
+
+    function loadUpdates() {
+        const selectedUSN  = document.getElementById("studentFilter").value;
+        const selectedDate = document.getElementById("dateFilter").value;
+
+        let filtered = allUpdates;
+        if (selectedUSN !== "all") { filtered = filtered.filter(u => u.student_usn === selectedUSN); }
+        if (selectedDate)           { filtered = filtered.filter(u => u.date === selectedDate); }
+
+        const table = document.getElementById("updatesTable");
+        const emptyMessage = document.getElementById("emptyMessage");
+        const summary = document.getElementById("summary");
+        table.innerHTML = "";
+        summary.textContent = "Total weekly updates found: " + filtered.length;
+
+        if (filtered.length === 0) { emptyMessage.style.display = "block"; return; }
+        emptyMessage.style.display = "none";
+
+        filtered.forEach(function(u) {
+            const row = document.createElement("tr");
+
+            // 1. Student Name
+            const tdStudent = document.createElement("td");
+            tdStudent.innerHTML = `<b>${escapeHtml(u.student_name || u.student_usn)}</b>`;
+
+            // 2. USN
+            const tdUsn = document.createElement("td");
+            tdUsn.innerHTML = `<span style="color:#475569; font-weight:600;">${escapeHtml(u.student_usn || "-")}</span>`;
+
+            // 3. Date
+            const tdDate = document.createElement("td");
+            tdDate.textContent = u.date || "-";
+
+            // 4. Description
+            const tdDesc = document.createElement("td");
+            tdDesc.style.maxWidth = "280px";
+            tdDesc.textContent = u.description || "-";
+
+            // 5. Hours
+            const tdHours = document.createElement("td");
+            tdHours.textContent = u.work_done || "-";
+
+            // 6. Uploaded Document / PDF
+            const tdDoc = document.createElement("td");
+            if (u.document_path) {
+                const docName = u.document_name || "Document / PDF";
+                const displayDocName = docName.length > 20 ? docName.slice(0, 17) + "..." : docName;
+                const docBtn = document.createElement("button");
+                docBtn.type = "button";
+                docBtn.className = "doc-btn";
+                docBtn.title = "View / Open " + docName + " in Dashboard";
+                docBtn.innerHTML = `📄 View ${escapeHtml(displayDocName)}`;
+                docBtn.onclick = function() {
+                    openDocViewerModal(
+                        u.document_path,
+                        docName,
+                        u.student_name || u.student_usn || "Student",
+                        u.student_usn || "-",
+                        u.id,
+                        u.status || "Pending",
+                        u.staff_remarks || ""
+                    );
+                };
+                tdDoc.appendChild(docBtn);
+            } else {
+                tdDoc.innerHTML = `<span style="color:#94a3b8; font-style:italic;">No Document Uploaded</span>`;
+            }
+
+            // 7. Status
+            const tdStatus = document.createElement("td");
+            const isApproved = (u.status || "").toLowerCase() === "approved";
+            tdStatus.innerHTML = isApproved
+                ? `<span class="badge-approved">✓ Approved</span>`
+                : `<span class="badge-pending">⏳ Pending</span>`;
+
+            // 8. Staff Feedback
+            const tdFeedback = document.createElement("td");
+            tdFeedback.style.maxWidth = "200px";
+            tdFeedback.innerHTML = u.staff_remarks
+                ? `<span style="color:#1d4ed8; font-weight:600;">${escapeHtml(u.staff_remarks)}</span>`
+                : `<span style="color:#94a3b8;">-</span>`;
+
+            // 9. Action / Approve Button
+            const tdAction = document.createElement("td");
+            tdAction.style.whiteSpace = "nowrap";
+            if (isApproved) {
+                tdAction.innerHTML = `<span class="approved-badge">✓ Approved</span>`;
+            } else {
+                const btn = document.createElement("button");
+                btn.className = "approve-btn";
+                btn.textContent = "✓ Approve";
+                btn.onclick = function() {
+                    approveWeeklyUpdate(u.id, u.student_name || u.student_usn);
+                };
+                tdAction.appendChild(btn);
+            }
+
+            row.append(tdStudent, tdUsn, tdDate, tdDesc, tdHours, tdDoc, tdStatus, tdFeedback, tdAction);
+            table.appendChild(row);
+        });
+    }
+
+    function approveWeeklyUpdate(id, studentName) {
+        const remarks = prompt(`Approve weekly update for ${studentName}?\n(Optional: Enter staff feedback below):`, "Verified and approved.");
+        if (remarks === null) return; // user cancelled prompt
+
+        fetch("/api/updates/" + id + "/approve", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "Approved", remarks: remarks.trim() })
+        })
+        .then(r => r.json())
+        .then(function(data) {
+            if (data.success) {
+                const upd = allUpdates.find(u => u.id === id);
+                if (upd) {
+                    upd.status = "Approved";
+                    upd.staff_remarks = remarks.trim();
+                }
+                loadUpdates();
+                alert(`✓ Weekly update for ${studentName} approved!`);
+            } else {
+                alert(data.error || "Failed to approve weekly update.");
+            }
+        })
+        .catch(() => alert("Server error approving weekly update."));
+    }
+
+    function approveAllFiltered() {
+        const selectedUSN = document.getElementById("studentFilter").value;
+        const msg = selectedUSN !== "all"
+            ? `Approve all pending updates for student ${selectedUSN}?`
+            : "Approve all pending weekly updates?";
+        if (!confirm(msg)) return;
+
+        fetch("/api/updates/approve-all", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_usn: selectedUSN })
+        })
+        .then(r => r.json())
+        .then(function(data) {
+            if (data.success) {
+                allUpdates.forEach(u => {
+                    if (selectedUSN === "all" || u.student_usn === selectedUSN) {
+                        u.status = "Approved";
+                    }
+                });
+                loadUpdates();
+                alert("✓ All pending weekly updates approved successfully!");
+            } else {
+                alert(data.error || "Failed to approve updates.");
+            }
+        })
+        .catch(() => alert("Server error approving updates."));
+    }
+
+    function escapeHtml(str) {
+        if (!str) return "";
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function openDocViewerModal(docPath, docName, studentName, studentUsn, updateId, status, remarks) {
+        if (!docPath) {
+            alert("No document path available for this update.");
+            return;
+        }
+
+        document.getElementById("docModalTitle").textContent = docName || "Student Weekly Report";
+        document.getElementById("docModalSub").textContent = `Student: ${studentName} (${studentUsn})`;
+
+        const directLink = document.getElementById("docModalDirectLink");
+        directLink.href = docPath;
+
+        const downloadLink = document.getElementById("docModalDownloadLink");
+        downloadLink.href = docPath;
+        downloadLink.setAttribute("download", docName || "weekly_report");
+
+        const contentEl = document.getElementById("docModalContent");
+        contentEl.innerHTML = "";
+
+        const isPdf = docPath.toLowerCase().endsWith(".pdf") || (docName && docName.toLowerCase().endsWith(".pdf"));
+
+        if (isPdf) {
+            contentEl.innerHTML = `
+                <div style="width:100%; height:100%; display:flex; flex-direction:column; position:relative;">
+                    <iframe id="pdfFrame" src="${docPath}" style="width:100%; flex:1; border:none; background:white;" title="${escapeHtml(docName)}"></iframe>
+                    <div id="pdfFallbackNotice" style="padding:8px 15px; background:#eff6ff; border-top:1px solid #bfdbfe; font-size:12px; color:#1e40af; display:flex; justify-content:space-between; align-items:center;">
+                        <span>💡 PDF opened directly in Staff Dashboard. If your browser restricts embedded PDFs, use the buttons above to open or download.</span>
+                        <a href="${docPath}" target="_blank" style="color:#1d4ed8; font-weight:bold; text-decoration:underline;">Open Full Tab</a>
+                    </div>
+                </div>
+            `;
+        } else {
+            contentEl.innerHTML = `
+                <div style="padding:40px 20px; text-align:center; max-width:600px; margin:auto;">
+                    <div style="width:80px; height:80px; background:#e0f2fe; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:40px;">
+                        📄
+                    </div>
+                    <h3 style="color:#1e3a8a; margin-bottom:8px; font-size:19px;">${escapeHtml(docName)}</h3>
+                    <p style="color:#475569; font-size:14px; margin-bottom:20px;">
+                        Attached by <b>${escapeHtml(studentName)}</b> (${escapeHtml(studentUsn)})
+                    </p>
+                    <div style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:8px; padding:15px; text-align:left; margin-bottom:25px; font-size:13.5px;">
+                        <p style="margin:4px 0;"><b>Format:</b> Microsoft Word / Text Document</p>
+                        <p style="margin:4px 0;"><b>Location:</b> On-server secure storage</p>
+                        <p style="margin:4px 0; color:#64748b;">Word documents can be directly opened in Microsoft Word, WPS Office, or Google Docs.</p>
+                    </div>
+                    <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+                        <a href="${docPath}" download="${escapeHtml(docName)}" style="background:#16a34a; color:white; padding:12px 24px; border-radius:6px; font-weight:bold; font-size:14px; text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+                            ⬇️ Open / Download Document
+                        </a>
+                        <a href="${docPath}" target="_blank" style="background:#0284c7; color:white; padding:12px 20px; border-radius:6px; font-weight:bold; font-size:14px; text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+                            🔗 Open in New Tab
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        const statusInfo = document.getElementById("docModalStatusInfo");
+        const isApproved = (status || "").toLowerCase() === "approved";
+        statusInfo.innerHTML = `
+            Status: <span style="padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold; ${isApproved ? 'background:#dcfce7; color:#15803d;' : 'background:#fef3c7; color:#b45309;'}">
+                ${isApproved ? '✓ Approved' : '⏳ Pending Review'}
+            </span>
+            ${remarks ? ` &bull; Feedback: <span style="color:#1d4ed8;">${escapeHtml(remarks)}</span>` : ''}
+        `;
+
+        const actionsEl = document.getElementById("docModalActions");
+        actionsEl.innerHTML = "";
+        if (!isApproved) {
+            const approveBtn = document.createElement("button");
+            approveBtn.type = "button";
+            approveBtn.className = "approve-btn";
+            approveBtn.style.padding = "9px 18px";
+            approveBtn.style.fontSize = "14px";
+            approveBtn.innerHTML = "✓ Approve This Weekly Update";
+            approveBtn.onclick = function() {
+                closeDocViewerModal();
+                approveWeeklyUpdate(updateId, studentName);
+            };
+            actionsEl.appendChild(approveBtn);
+        }
+
+        const modal = document.getElementById("docViewerModal");
+        modal.style.display = "flex";
+    }
+
+    function closeDocViewerModal() {
+        const modal = document.getElementById("docViewerModal");
+        if (modal) modal.style.display = "none";
+        const contentEl = document.getElementById("docModalContent");
+        if (contentEl) contentEl.innerHTML = "";
+    }
+
+    window.addEventListener("click", function(e) {
+        const modal = document.getElementById("docViewerModal");
+        if (e.target === modal) closeDocViewerModal();
+    });
+
+    window.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") closeDocViewerModal();
+    });
+
+    function goBack() { window.location.href = "/staff/dashboard"; }
+    function logout() {
+        fetch("/api/logout").then(() => { sessionStorage.clear(); localStorage.clear(); window.location.href = "/login.html"; });
+    }
+</script>
+
+</body>
+</html>

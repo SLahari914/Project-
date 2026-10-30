@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Database backups
+*.db.bak
+*_backup_*.db
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Uploads (keep folder structure, ignore actual uploads)
+uploads/videos/*
+!uploads/videos/.gitkeep
+
+# Archives
+*.zip
+*.tar.gz

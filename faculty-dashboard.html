@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard - AI Internship System</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+        }
+
+        .header {
+            background: #1565c0;
+            color: white;
+            padding: 20px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 23px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .pw-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 9px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .pw-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .logout {
+            background: white;
+            color: #1565c0;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .container {
+            padding: 30px;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h2 {
+            color: #333;
+        }
+
+        .welcome p {
+            color: #666;
+            margin-top: 6px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .card h3 {
+            color: #555;
+            font-size: 15px;
+        }
+
+        .card p {
+            font-size: 30px;
+            font-weight: bold;
+            color: #1565c0;
+            margin-top: 10px;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .action-btn,
+        .buttons button {
+            padding: 15px;
+            border: none;
+            border-radius: 7px;
+            background: #e3f2fd;
+            color: #1565c0;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14.5px;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover,
+        .buttons button:hover {
+            background: #1565c0;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 650px;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            color: #1565c0;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13.5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 9px; border-bottom: 1px solid #eee; text-align: left; font-size: 13px; }
+        th { background: #f0f4f8; color: #333; }
+
+        @media(max-width: 900px) {
+            .cards,
+            .buttons {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>AI-Powered Internship System</h1>
+        <div class="header-actions">
+            <button class="pw-btn" onclick="openChangePasswordModal()">🔑 Change Password</button>
+            <button class="logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <div class="welcome">
+            <h2>Faculty / Guide Dashboard</h2>
+            <p>Monitor assigned student internships and track AI assessment marks.</p>
+        </div>
+
+        <div class="cards">
+            <div class="card">
+                <h3>Assigned Students</h3>
+                <p id="assignedCount">0</p>
+            </div>
+            <div class="card">
+                <h3>Active Internships</h3>
+                <p id="activeCount">0</p>
+            </div>
+            <div class="card">
+                <h3>Pending Evaluations</h3>
+                <p id="pendingCount">0</p>
+            </div>
+            <div class="card">
+                <h3>Completed</h3>
+                <p id="completedCount">0</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Faculty Actions & Evaluation Tools</h2>
+
+            <div class="buttons">
+                <button onclick="window.location.href='/faculty-students.html'">
+                    View Students
+                </button>
+                <button onclick="window.location.href='/manage-internships.html'">
+                    Monitor Internships
+                </button>
+                <button onclick="window.location.href='/faculty-attendance.html'">
+                    Mark Attendance
+                </button>
+                <button onclick="window.location.href='/faculty-evaluations.html'">
+                    Evaluate Students
+                </button>
+                <button onclick="window.location.href='/faculty-updates.html'">
+                    View Weekly Updates
+                </button>
+                <!-- Marks Management Button -->
+                <button onclick="window.location.href='/manage-marks.html'" style="background:#ecfdf5; color:#065f46; font-weight:bold;">
+                    📊 Benchmark Marks Management
+                </button>
+                <!-- Question Allocation & Quiz Management -->
+                <button onclick="openFacultyQuizModal()" style="background:#dcfce7; color:#15803d; font-weight:bold;">
+                    📝 Assign Questions & Quiz Marks
+                </button>
+                <button onclick="openChangePasswordModal()" style="background:#e8eaf6; color:#283593;">
+                    🔑 Change Password
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Faculty Quiz & Question Assignment Modal -->
+    <div id="facQuizModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3 style="margin:0;">📝 Internship Question Allocation & AI Quiz Management</h3>
+                <button type="button" onclick="closeFacultyQuizModal()" style="border:none; background:none; font-size:22px; cursor:pointer;">&times;</button>
+            </div>
+            <p style="color:#666; font-size:13px; margin-bottom:15px;">
+                Create and allocate customized assessment question sets for your assigned students, and track OpenRouter AI evaluation scores.
+            </p>
+
+            <div style="display:flex; gap:10px; margin-bottom:15px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+                <button type="button" onclick="showQuizTab('attempts')" id="tabBtnAttempts" style="padding:8px 14px; background:#0284c7; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-size:13px;">
+                    Student Attempts & AI Scores
+                </button>
+                <button type="button" onclick="showQuizTab('assigned')" id="tabBtnAssigned" style="padding:8px 14px; background:#f1f5f9; color:#475569; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-size:13px;">
+                    Assigned Question Sets
+                </button>
+                <button type="button" onclick="showQuizTab('create')" id="tabBtnCreate" style="padding:8px 14px; background:#dcfce7; color:#15803d; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-size:13px;">
+                    + Allocate New Questions
+                </button>
+            </div>
+
+            <!-- TAB 1: Student Attempts -->
+            <div id="quizTabAttempts">
+                <div id="facQuizContainer">Loading quiz attempts...</div>
+            </div>
+
+            <!-- TAB 2: Quizzes Created by this Guide -->
+            <div id="quizTabAssigned" style="display:none;">
+                <div id="facAssignedQuizzesContainer">Loading assigned quizzes...</div>
+            </div>
+
+            <!-- TAB 3: Create & Assign Questions -->
+            <div id="quizTabCreate" style="display:none;">
+                <form id="createQuizForm" onsubmit="handleCreateFacultyQuiz(event)" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:16px;">
+                    <h4 style="margin:0 0 12px 0; color:#0369a1;">Create Question Set for Assigned Students</h4>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <div class="form-group">
+                            <label>Quiz / Assessment Title</label>
+                            <input type="text" id="qTitle" placeholder="e.g. Midterm Technical Assessment" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Domain / Topic</label>
+                            <input type="text" id="qTopic" placeholder="e.g. RESTful APIs & SQL Database Optimization" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Allocate To Student(s)</label>
+                        <select id="qAssignedTo" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px;">
+                            <option value="ALL">All Students Under My Guidance</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-top:16px;">
+                        <label style="font-weight:bold; font-size:14px; display:block; margin-bottom:8px;">
+                            Questions List
+                        </label>
+                        <div id="questionsList">
+                            <!-- Question Card 1 -->
+                            <div class="q-card" style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:12px;">
+                                <div style="font-weight:bold; margin-bottom:6px; color:#1e293b;">Question 1</div>
+                                <input type="text" class="q-text" placeholder="Enter question text here..." required style="width:100%; padding:8px; margin-bottom:8px; border:1px solid #cbd5e1; border-radius:4px;">
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+                                    <input type="text" class="opt-A" placeholder="Option A" required style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                                    <input type="text" class="opt-B" placeholder="Option B" required style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                                    <input type="text" class="opt-C" placeholder="Option C" required style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                                    <input type="text" class="opt-D" placeholder="Option D" required style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                                </div>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <label style="font-size:13px; font-weight:bold; margin:0;">Correct Answer:</label>
+                                    <select class="correct-opt" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:4px;">
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                        <option value="C">C</option>
+                                        <option value="D">D</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" onclick="addQuestionField()" style="padding:6px 12px; background:#e0f2fe; color:#0369a1; border:none; border-radius:5px; cursor:pointer; font-weight:bold; font-size:12.5px; margin-bottom:14px;">
+                            + Add Another Question
+                        </button>
+                    </div>
+
+                    <div id="qMsg" style="margin-bottom:10px; font-size:13px;"></div>
+                    <div style="display:flex; justify-content:flex-end; gap:8px;">
+                        <button type="button" onclick="showQuizTab('attempts')" style="padding:8px 14px; border:1px solid #ccc; background:white; border-radius:6px; cursor:pointer;">Cancel</button>
+                        <button type="submit" id="qSubmitBtn" style="padding:8px 18px; border:none; background:#0284c7; color:white; border-radius:6px; font-weight:bold; cursor:pointer;">
+                            Allocate Questions
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; margin-top:15px;">
+                <button type="button" onclick="closeFacultyQuizModal()" style="padding:9px 15px; border:none; background:#eee; border-radius:6px; cursor:pointer;">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <h3>Change Your Password</h3>
+            <form id="changePasswordForm" onsubmit="handleChangePassword(event)">
+                <div class="form-group">
+                    <label>Current Password</label>
+                    <input type="password" id="currentPassword" placeholder="Enter current password" required>
+                    <small style="color:#777; font-size:11.5px;">(If first time, default is your Faculty ID)</small>
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" id="newPassword" placeholder="Enter new password (min 4 chars)" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm new password" required>
+                </div>
+                <div id="cpMsg" style="margin-bottom: 12px; font-size: 13px;"></div>
+                <div style="display:flex; justify-content:flex-end; gap:8px;">
+                    <button type="button" onclick="closeChangePasswordModal()" style="padding:9px 15px; border:none; background:#eee; border-radius:6px; cursor:pointer;">Cancel</button>
+                    <button type="submit" id="cpSubmitBtn" style="padding:9px 18px; border:none; background:#1565c0; color:white; border-radius:6px; font-weight:bold; cursor:pointer;">Update Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        // Load real stats from backend
+        fetch("/api/faculty/stats")
+            .then(r => r.json())
+            .then(function(data) {
+                if (data.error) return;
+                document.getElementById("assignedCount").textContent = data.assignedStudents || 0;
+                document.getElementById("activeCount").textContent = data.activeInternships || 0;
+                document.getElementById("pendingCount").textContent = data.pendingEvaluations || 0;
+                document.getElementById("completedCount").textContent = data.completed || 0;
+            })
+            .catch(() => console.log("Stats unavailable."));
+
+        function logout() {
+            fetch("/api/logout").then(() => { sessionStorage.clear(); window.location.href = "/login"; });
+        }
+
+        // Change Password Functions
+        function openChangePasswordModal() {
+            document.getElementById("changePasswordForm").reset();
+            document.getElementById("cpMsg").innerHTML = "";
+            document.getElementById("changePasswordModal").style.display = "flex";
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById("changePasswordModal").style.display = "none";
+        }
+
+        function handleChangePassword(e) {
+            e.preventDefault();
+            const current_password = document.getElementById("currentPassword").value.trim();
+            const new_password     = document.getElementById("newPassword").value.trim();
+            const confirm_password = document.getElementById("confirmPassword").value.trim();
+            const msg = document.getElementById("cpMsg");
+            const btn = document.getElementById("cpSubmitBtn");
+
+            if (new_password !== confirm_password) {
+                msg.style.color = "red";
+                msg.innerText = "New passwords do not match!";
+                return;
+            }
+
+            btn.disabled = true;
+            msg.style.color = "#555";
+            msg.innerText = "Updating password...";
+
+            fetch("/api/change-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ current_password, new_password, confirm_password })
+            })
+            .then(r => r.json())
+            .then(data => {
+                btn.disabled = false;
+                if (data.success) {
+                    msg.style.color = "green";
+                    msg.innerText = data.message || "Password updated successfully!";
+                    setTimeout(closeChangePasswordModal, 1500);
+                } else {
+                    msg.style.color = "red";
+                    msg.innerText = data.error || "Failed to update password.";
+                }
+            })
+            .catch(() => {
+                btn.disabled = false;
+                msg.style.color = "red";
+                msg.innerText = "Server error updating password.";
+            });
+        }
+
+        // Faculty Quiz & Question Allocation Functions
+        function openFacultyQuizModal() {
+            document.getElementById("facQuizModal").style.display = "flex";
+            showQuizTab("attempts");
+            loadFacultyAssignedStudentsForQuiz();
+        }
+
+        function closeFacultyQuizModal() {
+            document.getElementById("facQuizModal").style.display = "none";
+        }
+
+        function showQuizTab(tab) {
+            document.getElementById("quizTabAttempts").style.display = tab === "attempts" ? "block" : "none";
+            document.getElementById("quizTabAssigned").style.display = tab === "assigned" ? "block" : "none";
+            document.getElementById("quizTabCreate").style.display = tab === "create" ? "block" : "none";
+
+            document.getElementById("tabBtnAttempts").style.background = tab === "attempts" ? "#0284c7" : "#f1f5f9";
+            document.getElementById("tabBtnAttempts").style.color = tab === "attempts" ? "white" : "#475569";
+            document.getElementById("tabBtnAssigned").style.background = tab === "assigned" ? "#0284c7" : "#f1f5f9";
+            document.getElementById("tabBtnAssigned").style.color = tab === "assigned" ? "white" : "#475569";
+
+            if (tab === "attempts") {
+                loadFacultyQuizAttempts();
+            } else if (tab === "assigned") {
+                loadFacultyQuizzesList();
+            }
+        }
+
+        function loadFacultyQuizAttempts() {
+            const container = document.getElementById("facQuizContainer");
+            container.innerHTML = "Loading quiz attempts...";
+            fetch("/api/faculty/quiz-attempts")
+                .then(r => r.json())
+                .then(attempts => {
+                    if (!attempts || attempts.length === 0) {
+                        container.innerHTML = "<p>No quiz attempts submitted by assigned students yet.</p>";
+                        return;
+                    }
+                    let html = "<table><thead><tr><th>Student</th><th>Quiz Title</th><th>Score</th><th>Percentage</th><th>Feedback</th><th>Date</th></tr></thead><tbody>";
+                    attempts.forEach(a => {
+                        html += `<tr>
+                            <td><b>${a.student_name || a.student_usn}</b><br><small style="color:#64748b;">${a.student_usn}</small></td>
+                            <td><b>${a.quiz_title}</b></td>
+                            <td>${a.score}/${a.total}</td>
+                            <td><b style="color:#15803d;">${a.ai_relevance_score}%</b></td>
+                            <td><small style="color:#475569;">${a.ai_feedback || '-'}</small></td>
+                            <td><small>${a.completed_at}</small></td>
+                        </tr>`;
+                    });
+                    html += "</tbody></table>";
+                    container.innerHTML = html;
+                })
+                .catch(() => { container.innerHTML = "<p>Failed to load quiz results.</p>"; });
+        }
+
+        function loadFacultyQuizzesList() {
+            const container = document.getElementById("facAssignedQuizzesContainer");
+            container.innerHTML = "Loading assigned questions...";
+            fetch("/api/faculty/quizzes")
+                .then(r => r.json())
+                .then(quizzes => {
+                    if (!quizzes || quizzes.length === 0) {
+                        container.innerHTML = "<p style='color:#666;'>No quizzes created yet. Click '+ Allocate New Questions' above to create one.</p>";
+                        return;
+                    }
+                    let html = "<table><thead><tr><th>Title & Topic</th><th>Allocated To</th><th>Questions</th><th>Attempts</th><th>Actions</th></tr></thead><tbody>";
+                    quizzes.forEach(q => {
+                        const targetBadge = q.assigned_to === "ALL" ? "<span style='background:#e0f2fe; color:#0369a1; padding:2px 7px; border-radius:4px; font-size:11px; font-weight:bold;'>All Assigned Students</span>" : `<span style='background:#fef3c7; color:#b45309; padding:2px 7px; border-radius:4px; font-size:11px; font-weight:bold;'>${q.assigned_to}</span>`;
+                        const qCount = (q.questions || []).length;
+                        html += `<tr>
+                            <td><b>${q.title}</b><br><small style="color:#64748b;">${q.topic}</small></td>
+                            <td>${targetBadge}</td>
+                            <td><b>${qCount}</b> Questions</td>
+                            <td><b>${q.attempt_count || 0}</b></td>
+                            <td>
+                                <button onclick="deleteFacultyQuiz(${q.id})" style="padding:5px 9px; background:#ef4444; color:white; border:none; border-radius:4px; cursor:pointer; font-size:12px;">Delete</button>
+                            </td>
+                        </tr>`;
+                    });
+                    html += "</tbody></table>";
+                    container.innerHTML = html;
+                })
+                .catch(() => { container.innerHTML = "<p>Failed to load assigned quizzes.</p>"; });
+        }
+
+        function loadFacultyAssignedStudentsForQuiz() {
+            fetch("/api/faculty/students")
+                .then(r => r.json())
+                .then(students => {
+                    const sel = document.getElementById("qAssignedTo");
+                    sel.innerHTML = '<option value="ALL">All Students Under My Guidance</option>';
+                    if (students && Array.isArray(students)) {
+                        students.forEach(s => {
+                            const opt = document.createElement("option");
+                            opt.value = s.usn;
+                            opt.textContent = `${s.name} (${s.usn}) - ${s.company || 'Intern'}`;
+                            sel.appendChild(opt);
+                        });
+                    }
+                })
+                .catch(() => {});
+        }
+
+        let questionIndex = 1;
+        function addQuestionField() {
+            questionIndex++;
+            const container = document.getElementById("questionsList");
+            const div = document.createElement("div");
+            div.className = "q-card";
+            div.style = "background:white; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:12px;";
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <div style="font-weight:bold; color:#1e293b;">Question ${questionIndex}</div>
+                    <button type="button" onclick="this.closest('.q-card').remove()" style="background:none; border:none; color:red; cursor:pointer; font-size:13px;">Remove</button>
+                </div>
+                <input type="text" class="q-text" placeholder="Enter question text here..." required style="width:100%; padding:8px; margin-bottom:8px; border:1px solid #cbd5e1; border-radius:4px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+                    <input type="text" class="opt-A" placeholder="Option A" required style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                    <input type="text" class="opt-B" placeholder="Option B" required style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                    <input type="text" class="opt-C" placeholder="Option C" required style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                    <input type="text" class="opt-D" placeholder="Option D" required style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <label style="font-size:13px; font-weight:bold; margin:0;">Correct Answer:</label>
+                    <select class="correct-opt" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:4px;">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function handleCreateFacultyQuiz(e) {
+            e.preventDefault();
+            const btn = document.getElementById("qSubmitBtn");
+            const msg = document.getElementById("qMsg");
+            const title = document.getElementById("qTitle").value.trim();
+            const topic = document.getElementById("qTopic").value.trim();
+            const assigned_to = document.getElementById("qAssignedTo").value;
+
+            const cards = document.querySelectorAll("#questionsList .q-card");
+            const questions = [];
+
+            cards.forEach((card, idx) => {
+                const qText = card.querySelector(".q-text").value.trim();
+                const optA = card.querySelector(".opt-A").value.trim();
+                const optB = card.querySelector(".opt-B").value.trim();
+                const optC = card.querySelector(".opt-C").value.trim();
+                const optD = card.querySelector(".opt-D").value.trim();
+                const correct = card.querySelector(".correct-opt").value;
+
+                if (qText) {
+                    questions.push({
+                        id: idx + 1,
+                        question: qText,
+                        options: [`A. ${optA}`, `B. ${optB}`, `C. ${optC}`, `D. ${optD}`],
+                        correct: correct
+                    });
+                }
+            });
+
+            if (questions.length === 0) {
+                msg.style.color = "red";
+                msg.innerText = "Please provide at least one valid question.";
+                return;
+            }
+
+            btn.disabled = true;
+            msg.style.color = "#0284c7";
+            msg.innerText = "Allocating question set to students...";
+
+            fetch("/api/faculty/quizzes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, topic, assigned_to, questions })
+            })
+            .then(r => r.json())
+            .then(data => {
+                btn.disabled = false;
+                if (data.success) {
+                    msg.style.color = "green";
+                    msg.innerText = "Questions successfully allocated to students!";
+                    document.getElementById("createQuizForm").reset();
+                    setTimeout(() => {
+                        msg.innerText = "";
+                        showQuizTab("assigned");
+                    }, 1200);
+                } else {
+                    msg.style.color = "red";
+                    msg.innerText = data.error || "Failed to create quiz.";
+                }
+            })
+            .catch(() => {
+                btn.disabled = false;
+                msg.style.color = "red";
+                msg.innerText = "Server error allocating questions.";
+            });
+        }
+
+        function deleteFacultyQuiz(qid) {
+            if (!confirm("Are you sure you want to delete this question set?")) return;
+            fetch(`/api/faculty/quizzes/${qid}`, { method: "DELETE" })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        loadFacultyQuizzesList();
+                    } else {
+                        alert(data.error || "Failed to delete quiz.");
+                    }
+                })
+                .catch(() => alert("Server error deleting quiz."));
+        }
+
+        // Global guard: Block contact number inputs after reaching 10 digits & enforce digits only
+        document.addEventListener("keydown", function(e) {
+            const target = e.target;
+            if (target && target.tagName === "INPUT" && (target.type === "tel" || target.id === "phone" || target.name === "phone" || (target.placeholder && target.placeholder.toLowerCase().includes("contact")))) {
+                const allowedKeys = ["Backspace", "Tab", "Enter", "Escape", "Delete", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"];
+                if (allowedKeys.includes(e.key) || e.ctrlKey || e.metaKey || e.altKey) return;
+                if (!/^[0-9]$/.test(e.key)) { e.preventDefault(); return; }
+                const sel = target.selectionEnd - target.selectionStart;
+                if (target.value.length >= 10 && sel === 0) { e.preventDefault(); }
+            }
+        });
+        document.addEventListener("input", function(e) {
+            const target = e.target;
+            if (target && target.tagName === "INPUT" && (target.type === "tel" || target.id === "phone" || target.name === "phone" || (target.placeholder && target.placeholder.toLowerCase().includes("contact")))) {
+                target.value = target.value.replace(/\D/g, "").slice(0, 10);
+            }
+        });
+    </script>
+
+</body>
+</html>

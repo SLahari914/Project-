@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Internship Monitoring System - Universal Portal</title>
+    
+    <!-- Bootstrap 5 CSS & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            --admin-color: #6610f2;
+            --staff-color: #0dcaf0;
+            --student-color: #198754;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 480px;
+            padding: 40px 35px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #6610f2, #0d6efd, #0dcaf0, #198754);
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: #e0f2fe;
+            color: #0369a1;
+            border-radius: 30px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .login-title {
+            font-weight: 700;
+            font-size: 1.65rem;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .login-subtitle {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .form-control, .input-group-text {
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 0.95rem;
+            border: 1.5px solid #cbd5e1;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+        }
+
+        /* Dynamic Role Indicator Badge */
+        .role-indicator-badge {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 10px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .badge-admin {
+            background-color: #f3e8ff;
+            color: #6b21a8;
+            border: 1px solid #d8b4fe;
+            display: flex;
+        }
+
+        .badge-staff {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #7dd3fc;
+            display: flex;
+        }
+
+        .badge-student {
+            background-color: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+            display: flex;
+        }
+
+        .badge-invalid {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+            display: flex;
+        }
+
+        .btn-submit {
+            background: var(--primary-gradient);
+            border: none;
+            padding: 13px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(13, 110, 253, 0.45);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.7;
+            transform: none;
+        }
+
+        /* Quick fill pill */
+        .demo-pill {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .demo-pill:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .prefix-guide {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 10px 14px;
+            border: 1px dashed #cbd5e1;
+            font-size: 0.8rem;
+            color: #475569;
+            margin-top: 20px;
+        }
+
+        .prefix-guide code {
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="login-card" role="main">
+        <header class="text-center">
+            <div class="brand-badge">
+                <i class="bi bi-shield-check"></i> Enterprise AI Monitored
+            </div>
+            <h1 class="login-title">Internship Portal</h1>
+            <p class="login-subtitle">Unified Role-Based Authentication System</p>
+        </header>
+
+        <form id="commonLoginForm" novalidate>
+            <!-- Login ID Field -->
+            <div class="mb-3">
+                <label for="loginId" class="form-label">
+                    Login ID <span class="text-muted fw-normal">(Unique 5-character prefix)</span>
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-muted">
+                        <i class="bi bi-person-fill-lock"></i>
+                    </span>
+                    <input type="text" 
+                           class="form-control" 
+                           id="loginId" 
+                           name="login_id" 
+                           placeholder="ADM25..., STF25..., or STU25..." 
+                           autocomplete="username" 
+                           required 
+                           aria-describedby="roleIndicator">
+                </div>
+
+                <!-- Visual Role Detector Indicator -->
+                <div id="roleIndicator" class="role-indicator-badge" role="status" aria-live="polite">
+                    <i id="roleIcon" class="bi"></i>
+                    <span id="roleText"></span>
+                </div>
+            </div>
+
+            <!-- Password Field with Show/Hide toggle -->
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label for="password" class="form-label mb-0">Password</label>
+                    <a href="#" class="text-decoration-none small text-primary" data-bs-toggle="modal" data-bs-target="#forgotModal">
+                        Forgot Password?
+                    </a>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-muted">
+                        <i class="bi bi-key-fill"></i>
+                    </span>
+                    <input type="password" 
+                           class="form-control" 
+                           id="password" 
+                           name="password" 
+                           placeholder="Enter your password" 
+                           autocomplete="current-password" 
+                           required>
+                    <button class="btn btn-outline-secondary" 
+                            type="button" 
+                            id="togglePassword" 
+                            aria-label="Toggle password visibility">
+                        <i class="bi bi-eye" id="toggleIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alerts Container -->
+            <div id="alertBox" class="alert d-none py-2 px-3 small" role="alert"></div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary btn-submit w-100 text-white mt-2" id="submitBtn">
+                <span id="btnText">Sign In to Dashboard</span>
+                <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+            </button>
+        </form>
+
+        <!-- Prefix Reference Guide -->
+        <div class="prefix-guide">
+            <div class="fw-semibold mb-1 text-dark">Institutional Prefix Standards:</div>
+            <div class="d-flex flex-wrap gap-2">
+                <span><code>ADM25</code> Administrator</span>
+                <span><code>STF25</code> Staff / Guide</span>
+                <span><code>STU25</code> Student</span>
+            </div>
+        </div>
+
+        <!-- Quick Demo Credentials for Rapid Evaluation -->
+        <div class="mt-3 pt-3 border-top text-center">
+            <span class="d-block small text-muted mb-2">⚡ Quick Credentials for Testing:</span>
+            <div class="d-flex justify-content-center gap-1 flex-wrap">
+                <button type="button" class="demo-pill" onclick="quickFill('ADM25A1042', 'Admin@123')">
+                    <i class="bi bi-shield-shaded text-primary"></i> Admin
+                </button>
+                <button type="button" class="demo-pill" onclick="quickFill('STF25T1001', 'Guide@123')">
+                    <i class="bi bi-person-badge text-info"></i> Staff
+                </button>
+                <button type="button" class="demo-pill" onclick="quickFill('STU25S2045', 'Student@123')">
+                    <i class="bi bi-mortarboard text-success"></i> Student
+                </button>
+            </div>
+        </div>
+
+        <footer class="text-center mt-3 small text-muted">
+            &copy; 2026 AI-Powered Internship System &bull; Secure Authentication
+        </footer>
+    </main>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal fade" id="forgotModal" tabindex="-1" aria-labelledby="forgotModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="forgotModalLabel">Reset Account Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small">Enter your Role, Login ID, and registered email to reset your account password.</p>
+                    <form id="forgotForm" onsubmit="handleForgotPassword(event)">
+                        <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <select id="forgotRole" class="form-select" required>
+                                <option value="student">Student (STU25)</option>
+                                <option value="faculty">Faculty / Guide (STF25)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Login ID / USN / Faculty ID</label>
+                            <input type="text" id="forgotIdentifier" class="form-control" placeholder="e.g. STU25S2045 or STF25T1001" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Registered Email</label>
+                            <input type="email" id="forgotEmail" class="form-control" placeholder="name@internship.edu" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">New Password (Optional)</label>
+                            <input type="password" id="forgotNewPassword" class="form-control" placeholder="Leave empty to reset to default">
+                        </div>
+                        <div id="forgotAlert" class="alert d-none py-2 px-3 small"></div>
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="forgotSubmitBtn">Reset Password</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const loginIdInput = document.getElementById('loginId');
+        const passwordInput = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('togglePassword');
+        const toggleIcon = document.getElementById('toggleIcon');
+        const roleIndicator = document.getElementById('roleIndicator');
+        const roleIcon = document.getElementById('roleIcon');
+        const roleText = document.getElementById('roleText');
+        const alertBox = document.getElementById('alertBox');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+
+        // Toggle Password Visibility
+        togglePasswordBtn.addEventListener('click', () => {
+            const isPassword = passwordInput.getAttribute('type') === 'password';
+            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+            toggleIcon.className = isPassword ? 'bi bi-eye-slash' : 'bi bi-eye';
+        });
+
+        // Automatic Role Detection on Keyup / Input
+        loginIdInput.addEventListener('input', () => {
+            const rawVal = loginIdInput.value.trim().toUpperCase();
+            
+            // Reset styles
+            roleIndicator.className = 'role-indicator-badge';
+
+            if (rawVal.length === 0) {
+                roleIndicator.style.display = 'none';
+                return;
+            }
+
+            if (rawVal.startsWith('ADM25')) {
+                roleIndicator.style.display = 'flex';
+                roleIndicator.classList.add('badge-admin');
+                roleIcon.className = 'bi bi-shield-lock-fill';
+                roleText.textContent = 'Administrator Account Detected (ADM25)';
+            } else if (rawVal.startsWith('STF25')) {
+                roleIndicator.style.display = 'flex';
+                roleIndicator.classList.add('badge-staff');
+                roleIcon.className = 'bi bi-person-badge-fill';
+                roleText.textContent = 'Staff / Guide Account Detected (STF25)';
+            } else if (rawVal.startsWith('STU25')) {
+                roleIndicator.style.display = 'flex';
+                roleIndicator.classList.add('badge-student');
+                roleIcon.className = 'bi bi-mortarboard-fill';
+                roleText.textContent = 'Student Account Detected (STU25)';
+            } else if (rawVal.length >= 5) {
+                // Unrecognized 5-character prefix
+                roleIndicator.style.display = 'flex';
+                roleIndicator.classList.add('badge-invalid');
+                roleIcon.className = 'bi bi-exclamation-triangle-fill';
+                roleText.textContent = 'Unrecognized prefix. Use ADM25, STF25, or STU25.';
+            } else {
+                // Shorter than 5 chars
+                roleIndicator.style.display = 'none';
+            }
+        });
+
+        // Quick Fill Helper for instant testing
+        function quickFill(user, pass) {
+            loginIdInput.value = user;
+            passwordInput.value = pass;
+            loginIdInput.dispatchEvent(new Event('input'));
+            alertBox.classList.add('d-none');
+        }
+
+        // Form Submission
+        document.getElementById('commonLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            alertBox.classList.add('d-none');
+
+            const loginId = loginIdInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!loginId || !password) {
+                showAlert('Please fill in both Login ID and Password.', 'danger');
+                return;
+            }
+
+            // Set loading state
+            submitBtn.disabled = true;
+            btnText.textContent = 'Authenticating...';
+            btnSpinner.classList.remove('d-none');
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ login_id: loginId, password: password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    sessionStorage.setItem('userRole', data.role);
+                    sessionStorage.setItem('username', data.username);
+                    sessionStorage.setItem('loginId', data.login_id || loginId);
+                    sessionStorage.setItem('userName', data.name);
+                    sessionStorage.setItem('userEmail', data.email || '');
+
+                    // Also save to localStorage so student sub-pages can access auth data
+                    localStorage.setItem('userRole', data.role);
+                    localStorage.setItem('username', data.username);
+                    localStorage.setItem('loginId', data.login_id || loginId);
+                    localStorage.setItem('userName', data.name);
+                    localStorage.setItem('userEmail', data.email || '');
+
+                    showAlert(`Welcome back, ${data.name}! Redirecting to dashboard...`, 'success');
+
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 500);
+                } else {
+                    showAlert(data.error || 'Authentication failed. Please verify your credentials.', 'danger');
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Sign In to Dashboard';
+                    btnSpinner.classList.add('d-none');
+                }
+            } catch (err) {
+                showAlert('Network error: Unable to connect to server. Please verify backend is running.', 'danger');
+                submitBtn.disabled = false;
+                btnText.textContent = 'Sign In to Dashboard';
+                btnSpinner.classList.add('d-none');
+            }
+        });
+
+        function showAlert(msg, type) {
+            alertBox.className = `alert alert-${type} py-2 px-3 small`;
+            alertBox.textContent = msg;
+            alertBox.classList.remove('d-none');
+        }
+
+        // Forgot password submission
+        async function handleForgotPassword(e) {
+            e.preventDefault();
+            const role = document.getElementById('forgotRole').value;
+            const identifier = document.getElementById('forgotIdentifier').value.trim();
+            const email = document.getElementById('forgotEmail').value.trim();
+            const new_password = document.getElementById('forgotNewPassword').value.trim();
+            const alertEl = document.getElementById('forgotAlert');
+            const btn = document.getElementById('forgotSubmitBtn');
+
+            alertEl.className = 'alert alert-info py-2 px-3 small';
+            alertEl.textContent = 'Processing request...';
+            alertEl.classList.remove('d-none');
+            btn.disabled = true;
+
+            try {
+                const resp = await fetch('/api/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role, identifier, email, new_password })
+                });
+                const data = await resp.json();
+                btn.disabled = false;
+                if (resp.ok && data.success) {
+                    alertEl.className = 'alert alert-success py-2 px-3 small';
+                    alertEl.textContent = data.message;
+                    passwordInput.value = data.new_password;
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('forgotModal'));
+                        if (modal) modal.hide();
+                    }, 2500);
+                } else {
+                    alertEl.className = 'alert alert-danger py-2 px-3 small';
+                    alertEl.textContent = data.error || 'Failed to reset password.';
+                }
+            } catch (err) {
+                btn.disabled = false;
+                alertEl.className = 'alert alert-danger py-2 px-3 small';
+                alertEl.textContent = 'Server communication error.';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
+3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >> endobj
+4 0 obj << /Length 666 >>
+stream
+BT /F1 18 Tf 50 720 Td (Akash Global College - Weekly Report) Tj ET
+BT /F1 12 Tf 50 690 Td (Student: Lahari S (U18FU24S0083)) Tj ET
+BT /F1 10 Tf 50 670 Td (Date: 2026-10-17 | Status: Verified) Tj ET
+BT /F1 11 Tf 50 630 Td (Weekly Internship Report Summary:) Tj ET
+BT /F1 10 Tf 50 600 Td (Week 1 Activities: Database schema integration and backend routing setup.) Tj ET
+BT /F1 10 Tf 50 580 Td (Work completed: 35 hours devoted to Flask controllers and sqlite schema.) Tj ET
+BT /F1 10 Tf 50 560 Td (Challenges addressed: CORS and role-based permissions verified.) Tj ET
+BT /F1 10 Tf 50 540 Td (Next Sprint: Front-end dashboard integration and report approvals.) Tj ET
+
+endstream
+endobj
+5 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000958 00000 n 
+trailer << /Size 6 /Root 1 0 R >>
+startxref
+1028
+%%EOF

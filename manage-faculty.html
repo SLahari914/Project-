@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Faculty - AI Internship System</title>
+    <style>
+        * { box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { margin: 0; background: #f1f7ff; color: #222; }
+        header {
+            background: linear-gradient(135deg, #2196f3, #1565c0);
+            color: white; padding: 18px 30px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        header h2 { margin: 0; }
+        .logout {
+            background: white; color: #1565c0; border: none;
+            padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: bold;
+        }
+        .container { padding: 30px; }
+        .back-btn {
+            background: #607d8b; color: white; border: none;
+            padding: 10px 18px; border-radius: 6px; cursor: pointer; margin-bottom: 20px;
+        }
+        .top-section {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 20px;
+        }
+        .top-section h1 { color: #1565c0; margin: 0; }
+        .add-btn {
+            background: #1565c0; color: white; border: none;
+            padding: 12px 20px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600;
+        }
+        .search-box {
+            width: 100%; padding: 12px; border: 1px solid #ccc;
+            border-radius: 6px; margin-bottom: 20px; font-size: 15px;
+        }
+        .table-container {
+            background: white; padding: 20px; border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08); overflow-x: auto;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background: #e3f2fd; color: #1565c0; }
+        .login-id-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e0f2fe;
+            border: 1px solid #bae6fd;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+        .login-id-tag code {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0369a1;
+            font-family: monospace;
+            letter-spacing: 0.5px;
+        }
+        .copy-mini-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            font-size: 13px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .copy-mini-btn:hover { opacity: 1; }
+        .reset-btn {
+            background: #3f51b5; color: white; border: none;
+            padding: 7px 11px; border-radius: 5px; cursor: pointer; margin-right: 5px;
+        }
+        .reset-btn:hover { background: #303f9f; }
+        .edit-btn {
+            background: #ff9800; color: white; border: none;
+            padding: 7px 12px; border-radius: 5px; cursor: pointer;
+        }
+        .edit-btn:hover { background: #f57c00; }
+        .delete-btn {
+            background: #f44336; color: white; border: none;
+            padding: 7px 12px; border-radius: 5px; cursor: pointer; margin-left: 5px;
+        }
+        .delete-btn:hover { background: #d32f2f; }
+        .modal {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.5);
+            justify-content: center; align-items: center; z-index: 999;
+        }
+        .modal-content {
+            background: white; width: 90%; max-width: 550px;
+            padding: 25px; border-radius: 10px; max-height: 90vh; overflow-y: auto;
+        }
+        .modal-content h2 { color: #1565c0; margin-top: 0; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;
+        }
+        .save-btn {
+            background: #1565c0; color: white; border: none;
+            padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;
+        }
+        .cancel-btn {
+            background: #777; color: white; border: none;
+            padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-left: 8px;
+        }
+        .toast-notify {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1e293b;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 9999;
+        }
+        @media(max-width: 700px) {
+            .top-section { flex-direction: column; align-items: flex-start; gap: 15px; }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>AI-Powered Internship System</h2>
+    <button class="logout" onclick="logout()">Logout</button>
+</header>
+
+<div class="container">
+
+    <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
+
+    <div class="top-section">
+        <div>
+            <h1>Manage Faculty (Staff)</h1>
+            <p style="color: #666; font-size: 13px; margin-top: 4px;">Institutional Login IDs (e.g. <code>STF26T1001</code>) are auto-generated. Faculty can log in using their <b>Login ID</b> or <b>Faculty ID</b>.</p>
+        </div>
+        <button class="add-btn" onclick="openAddForm()">+ Add Faculty</button>
+    </div>
+
+    <input type="text" id="searchInput" class="search-box"
+        placeholder="Search by Login ID, Faculty ID, or name..." onkeyup="searchFaculty()">
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Login ID</th>
+                    <th>Faculty ID</th>
+                    <th>Faculty Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Phone</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="facultyTableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- Add/Edit Faculty Modal -->
+<div class="modal" id="facultyModal">
+    <div class="modal-content">
+        <h2 id="modalTitle">Add Faculty</h2>
+
+        <!-- Institutional Login ID Banner -->
+        <div id="facultyLoginIdBanner" style="background:#e0f2fe; border:1px solid #bae6fd; padding:12px 14px; border-radius:8px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between;">
+            <div>
+                <div style="font-size:11px; font-weight:700; color:#0369a1; text-transform:uppercase; letter-spacing:0.5px;">Institutional Login ID</div>
+                <div style="font-size:17px; font-weight:800; color:#0c4a6e; font-family:monospace; margin-top:2px;" id="modalFacultyLoginIdDisplay">Fetching next ID...</div>
+            </div>
+            <span style="font-size:11px; background:#0284c7; color:white; padding:4px 8px; border-radius:6px; font-weight:600;" id="modalFacultyLoginIdBadge">Auto-Generated</span>
+        </div>
+
+        <form id="facultyForm">
+            <div class="form-group">
+                <label>Faculty ID</label>
+                <input type="text" id="facultyId" placeholder="Example: AGCMS01" required>
+            </div>
+            <div class="form-group">
+                <label>Faculty Name</label>
+                <input type="text" id="name" placeholder="Enter faculty name" required>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="Enter email" required>
+            </div>
+            <div class="form-group">
+                <label>Department</label>
+                <select id="department">
+                    <option value="Computer Applications">Computer Applications</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Information Technology">Information Technology</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="tel" id="phone" placeholder="10-digit contact number" maxlength="10" inputmode="numeric" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 10);">
+                <small style="color: #64748b; font-size: 11.5px; display: block; margin-top: 3px;">Max 10 digits allowed.</small>
+            </div>
+            <div class="form-group">
+                <label id="facultyPasswordLabel">Password (Optional)</label>
+                <input type="text" id="facultyPassword" placeholder="Default: Faculty ID">
+                <small id="facultyPasswordHelp" style="color: #666; font-size: 12px; display: block; margin-top: 4px;">Leave blank to use Faculty ID as default password.</small>
+            </div>
+            <button type="submit" class="save-btn">Save Faculty</button>
+            <button type="button" class="cancel-btn" onclick="closeForm()">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<!-- Success Credential Small Window Popup -->
+<div class="modal" id="successCredentialModal">
+    <div class="modal-content" style="max-width:400px; text-align:center; border-radius:12px; box-shadow:0 12px 30px rgba(0,0,0,0.25); padding:22px 24px;">
+        <div style="font-size:42px; line-height:1; margin-bottom:8px;">✅</div>
+        <h2 style="color:#0f766e; margin:0 0 6px 0; font-size:20px;">Faculty Registered</h2>
+        <p style="color:#64748b; font-size:13px; margin:0 0 16px 0;">Account created! Here are the login details:</p>
+
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:14px 16px; text-align:left; margin-bottom:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #dcfce7; padding-bottom:8px; margin-bottom:8px;">
+                <span style="font-size:13px; color:#374151; font-weight:700;">Login ID:</span>
+                <span style="font-family:monospace; font-size:17px; font-weight:800; color:#0284c7; background:#e0f2fe; padding:2px 8px; border-radius:5px;" id="credLoginId">-</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #dcfce7; padding-bottom:8px; margin-bottom:8px;">
+                <span style="font-size:13px; color:#374151; font-weight:700;">Password:</span>
+                <span style="font-family:monospace; font-size:16px; font-weight:800; color:#15803d; background:#dcfce7; padding:2px 8px; border-radius:5px;" id="credPassword">-</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #dcfce7; padding-bottom:6px; margin-bottom:6px;">
+                <span style="font-size:12px; color:#6b7280; font-weight:600;">Faculty ID:</span>
+                <span style="font-weight:700; color:#1f2937; font-size:13px;" id="credFacultyId">-</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:12px; color:#6b7280; font-weight:600;">Name:</span>
+                <span style="font-weight:700; color:#1f2937; font-size:13px;" id="credName">-</span>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px; justify-content:center;">
+            <button onclick="copyCredentialDetails()" style="background:#0284c7; color:white; border:none; padding:10px 18px; border-radius:6px; font-weight:600; cursor:pointer; font-size:14px; display:inline-flex; align-items:center; gap:5px;">📋 Copy</button>
+            <button onclick="closeSuccessModal()" style="background:#15803d; color:white; border:none; padding:10px 30px; border-radius:6px; font-weight:700; cursor:pointer; font-size:14px; min-width:90px;">OK</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast-notify">Copied to clipboard!</div>
+
+
+<script>
+
+    let faculty  = [];
+    let editFID  = null;
+    let latestCreds = {};
+
+    function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.innerText = msg || "Copied to clipboard!";
+        t.style.display = "block";
+        setTimeout(() => { t.style.display = "none"; }, 2500);
+    }
+
+    function copyText(txt, label) {
+        navigator.clipboard.writeText(txt).then(() => {
+            showToast(`${label || "ID"} '${txt}' copied!`);
+        }).catch(() => {
+            alert("Copied: " + txt);
+        });
+    }
+
+    function loadFaculty() {
+        fetch("/api/faculty")
+            .then(r => r.json())
+            .then(function(data) {
+                if (data.error) { alert(data.error); return; }
+                faculty = data;
+                displayFaculty(faculty);
+            })
+            .catch(() => alert("Failed to load faculty from server."));
+    }
+
+    function displayFaculty(list) {
+        const tbody = document.getElementById("facultyTableBody");
+        tbody.innerHTML = "";
+        if (!list || list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No faculty found</td></tr>';
+            return;
+        }
+        list.forEach(function(f) {
+            tbody.innerHTML += `<tr>
+                <td>
+                    <span class="login-id-tag">
+                        <code>${f.login_id || "-"}</code>
+                        ${f.login_id ? `<button class="copy-mini-btn" onclick="copyText('${f.login_id}', 'Faculty Login ID')" title="Copy Login ID">📋</button>` : ''}
+                    </span>
+                </td>
+                <td><b>${f.faculty_id}</b></td>
+                <td>${f.name}</td>
+                <td>${f.email}</td>
+                <td>${f.department}</td>
+                <td>${f.phone || "-"}</td>
+                <td style="white-space: nowrap;">
+                    <button class="reset-btn" onclick="resetFacultyPassword('${f.faculty_id}')" title="Reset Password">Reset PW</button>
+                    <button class="edit-btn"   onclick="editFaculty('${f.faculty_id}')">Edit</button>
+                    <button class="delete-btn" onclick="deleteFaculty('${f.faculty_id}')">Delete</button>
+                </td>
+            </tr>`;
+        });
+    }
+
+    function openAddForm() {
+        editFID = null;
+        document.getElementById("modalTitle").innerText     = "Add Faculty";
+        document.getElementById("facultyForm").reset();
+        document.getElementById("facultyId").disabled = false;
+        document.getElementById("facultyPasswordLabel").innerText = "Initial Password (Optional)";
+        document.getElementById("facultyPassword").value = "";
+        document.getElementById("facultyPasswordHelp").innerText = "Leave blank to use Faculty ID as default password.";
+
+        document.getElementById("modalFacultyLoginIdDisplay").innerText = "Fetching next ID...";
+        document.getElementById("modalFacultyLoginIdBadge").innerText   = "Auto-Generated";
+
+        fetch("/api/admin/next-login-id?role=faculty")
+            .then(r => r.json())
+            .then(d => {
+                if (d.login_id) {
+                    document.getElementById("modalFacultyLoginIdDisplay").innerText = d.login_id;
+                }
+            })
+            .catch(() => {
+                document.getElementById("modalFacultyLoginIdDisplay").innerText = "Auto-assigned on save";
+            });
+
+        document.getElementById("facultyModal").style.display = "flex";
+    }
+
+    function closeForm() {
+        document.getElementById("facultyModal").style.display = "none";
+    }
+
+    function closeSuccessModal() {
+        document.getElementById("successCredentialModal").style.display = "none";
+    }
+
+    function copyCredentialDetails() {
+        if (!latestCreds.login_id) return;
+        const txt = `AI Internship Portal Faculty Credentials:\nLogin ID: ${latestCreds.login_id}\nFaculty ID: ${latestCreds.faculty_id}\nName: ${latestCreds.name}\nPassword: ${latestCreds.password}\nLogin URL: ${window.location.origin}/login`;
+        copyText(txt, "Credentials");
+    }
+
+    document.getElementById("facultyForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const fidVal  = document.getElementById("facultyId").value.trim();
+        const nameVal = document.getElementById("name").value.trim();
+        const pwVal   = document.getElementById("facultyPassword").value.trim();
+
+        const phoneVal = document.getElementById("phone").value.trim();
+        if (phoneVal && phoneVal.length !== 10) {
+            alert("Contact number must be exactly 10 digits.");
+            document.getElementById("phone").focus();
+            return;
+        }
+
+        const payload = {
+            facultyId:  fidVal,
+            name:       nameVal,
+            email:      document.getElementById("email").value.trim(),
+            department: document.getElementById("department").value,
+            phone:      phoneVal
+        };
+
+        if (pwVal) {
+            payload.password = pwVal;
+        }
+
+        const isAdd  = !editFID;
+        const url    = editFID ? "/api/faculty/" + editFID : "/api/faculty";
+        const method = editFID ? "PUT" : "POST";
+
+        fetch(url, { method, headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) })
+            .then(r => r.json())
+            .then(function(data) {
+                if (data.success) {
+                    loadFaculty();
+                    closeForm();
+
+                    if (isAdd) {
+                        latestCreds = {
+                            login_id:   data.login_id,
+                            faculty_id: data.facultyId || fidVal,
+                            name:       data.name || nameVal,
+                            password:   pwVal || fidVal
+                        };
+                        document.getElementById("credLoginId").innerText   = latestCreds.login_id;
+                        document.getElementById("credFacultyId").innerText = latestCreds.faculty_id;
+                        document.getElementById("credName").innerText      = latestCreds.name;
+                        document.getElementById("credPassword").innerText  = latestCreds.password;
+                        document.getElementById("successCredentialModal").style.display = "flex";
+                    } else {
+                        showToast("Faculty member updated successfully!");
+                    }
+                } else {
+                    alert(data.error || "Failed to save faculty.");
+                }
+            })
+            .catch(() => alert("Server error while saving faculty."));
+    });
+
+    function editFaculty(fid) {
+        const f = faculty.find(x => x.faculty_id === fid);
+        if (!f) return;
+        editFID = fid;
+        document.getElementById("modalTitle").innerText     = "Edit Faculty";
+        document.getElementById("modalFacultyLoginIdDisplay").innerText = f.login_id || f.faculty_id;
+        document.getElementById("modalFacultyLoginIdBadge").innerText   = "Permanent ID";
+
+        document.getElementById("facultyId").value    = f.faculty_id;
+        document.getElementById("facultyId").disabled = true;
+        document.getElementById("name").value         = f.name;
+        document.getElementById("email").value        = f.email;
+        document.getElementById("department").value   = f.department;
+        document.getElementById("phone").value        = f.phone || "";
+        document.getElementById("facultyPasswordLabel").innerText = "Reset Password (Optional)";
+        document.getElementById("facultyPassword").value = "";
+        document.getElementById("facultyPasswordHelp").innerText = "Leave blank to keep existing password unchanged.";
+        document.getElementById("facultyModal").style.display = "flex";
+    }
+
+    function resetFacultyPassword(fid) {
+        const promptVal = prompt(`Reset password for faculty '${fid}'?\n\nEnter a new password, or leave blank to reset to default Faculty ID (${fid}):`, "");
+        if (promptVal === null) return; // User cancelled
+
+        const newPw = promptVal.trim();
+        fetch("/api/admin/reset-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ role: "faculty", id: fid, new_password: newPw })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+            } else {
+                alert(data.error || "Failed to reset password.");
+            }
+        })
+        .catch(() => alert("Server error while resetting password."));
+    }
+
+    function deleteFaculty(fid) {
+        if (!confirm("Delete this faculty member?")) return;
+        fetch("/api/faculty/" + fid, { method: "DELETE" })
+            .then(r => r.json())
+            .then(d => { if (d.success) loadFaculty(); else alert(d.error); });
+    }
+
+    function searchFaculty() {
+        const q = document.getElementById("searchInput").value.toLowerCase();
+        displayFaculty(faculty.filter(f =>
+            (f.login_id && f.login_id.toLowerCase().includes(q)) ||
+            f.faculty_id.toLowerCase().includes(q) ||
+            f.name.toLowerCase().includes(q) ||
+            (f.department && f.department.toLowerCase().includes(q)) ||
+            (f.email && f.email.toLowerCase().includes(q))
+        ));
+    }
+
+    function goBack() { window.location.href = "/admin/dashboard"; }
+    function logout() {
+        fetch("/api/logout").then(() => { sessionStorage.clear(); window.location.href = "/login.html"; });
+    }
+
+    loadFaculty();
+
+    // Block contact number input after reaching 10 digits & enforce digits only
+    const phoneInput = document.getElementById("phone");
+    if (phoneInput) {
+        phoneInput.addEventListener("keydown", function(e) {
+            const allowedKeys = [
+                "Backspace", "Tab", "Enter", "Escape", "Delete",
+                "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown",
+                "Home", "End"
+            ];
+            if (allowedKeys.includes(e.key) || e.ctrlKey || e.metaKey || e.altKey) {
+                return;
+            }
+            // Block non-numeric characters
+            if (!/^[0-9]$/.test(e.key)) {
+                e.preventDefault();
+                return;
+            }
+            // Block entry if already 10 digits and no text is selected
+            const selectionLength = this.selectionEnd - this.selectionStart;
+            if (this.value.length >= 10 && selectionLength === 0) {
+                e.preventDefault();
+            }
+        });
+
+        phoneInput.addEventListener("paste", function(e) {
+            e.preventDefault();
+            const pasteData = (e.clipboardData || window.clipboardData).getData("text") || "";
+            const digits = pasteData.replace(/\D/g, "");
+            const start = this.selectionStart || 0;
+            const end = this.selectionEnd || 0;
+            const current = this.value;
+            const combined = current.slice(0, start) + digits + current.slice(end);
+            this.value = combined.replace(/\D/g, "").slice(0, 10);
+            this.dispatchEvent(new Event("input"));
+        });
+    }
+
+</script>
+
+</body>
+</html>

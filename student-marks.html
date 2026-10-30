@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Internship Marks & Benchmark - AI Internship System</title>
+
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { margin: 0; background: #f0f4f9; color: #1e293b; }
+
+        header {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white; padding: 18px 32px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+        }
+        header h2 { margin: 0; font-size: 20px; display: flex; align-items: center; gap: 8px; }
+
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .user-tag { background: rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; }
+        .logout {
+            background: white; color: #0369a1; border: none;
+            padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;
+        }
+
+        .container { padding: 28px 32px; max-width: 1100px; margin: 0 auto; }
+
+        .top-nav {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 22px; flex-wrap: wrap; gap: 12px;
+        }
+        .back-btn {
+            background: #64748b; color: white; border: none;
+            padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: 600;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .back-btn:hover { background: #475569; }
+
+        .print-btn {
+            background: #0284c7; color: white; border: none;
+            padding: 9px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .print-btn:hover { background: #0369a1; }
+
+        /* Profile Card */
+        .profile-card {
+            background: white; border-radius: 14px; padding: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 24px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px; border-left: 5px solid #0284c7;
+        }
+        .profile-item span { display: block; font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 700; }
+        .profile-item strong { font-size: 16px; color: #0f172a; margin-top: 3px; display: block; }
+
+        /* Hero Score Card */
+        .hero-score {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white; border-radius: 16px; padding: 28px 32px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2); margin-bottom: 24px;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;
+        }
+        .score-meta h1 { margin: 0 0 6px 0; font-size: 22px; color: #f8fafc; }
+        .score-meta p { margin: 0; color: #94a3b8; font-size: 14px; }
+        .score-pill-status {
+            display: inline-block; padding: 4px 10px; border-radius: 6px;
+            font-size: 12px; font-weight: 700; margin-top: 10px;
+        }
+        .score-pill-status.published { background: #dcfce7; color: #166534; }
+        .score-pill-status.draft { background: #fef3c7; color: #92400e; }
+        .score-pill-status.pending { background: #334155; color: #cbd5e1; }
+
+        .score-display {
+            display: flex; align-items: center; gap: 24px;
+        }
+        .score-number {
+            text-align: right;
+        }
+        .score-number .main { font-size: 42px; font-weight: 800; color: #38bdf8; line-height: 1; }
+        .score-number .sub { font-size: 15px; color: #94a3b8; margin-top: 4px; }
+        .grade-badge-large {
+            background: #0284c7; color: white; width: 68px; height: 68px;
+            border-radius: 12px; display: flex; justify-content: center; align-items: center;
+            font-size: 28px; font-weight: 800; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+        }
+
+        /* Benchmark Progress Bars */
+        .benchmarks-section {
+            background: white; border-radius: 14px; padding: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 24px;
+        }
+        .benchmarks-section h3 { margin: 0 0 18px 0; font-size: 18px; color: #0f172a; }
+
+        .comp-bar-item { margin-bottom: 18px; }
+        .comp-bar-header {
+            display: flex; justify-content: space-between; font-size: 14px; font-weight: 600;
+            color: #334155; margin-bottom: 6px;
+        }
+        .comp-bar-header span strong { color: #0284c7; font-weight: 700; }
+        .progress-track {
+            background: #e2e8f0; height: 10px; border-radius: 5px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; border-radius: 5px; background: linear-gradient(90deg, #38bdf8, #0284c7);
+            transition: width 0.6s ease;
+        }
+
+        /* Detailed Table */
+        .table-card {
+            background: white; border-radius: 14px; padding: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow-x: auto;
+        }
+        .table-card h3 { margin: 0 0 16px 0; font-size: 18px; color: #0f172a; }
+        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        th, td { padding: 13px 16px; text-align: left; font-size: 13.5px; border-bottom: 1px solid #f1f5f9; }
+        th { background: #f8fafc; color: #475569; font-weight: 700; border-bottom: 2px solid #e2e8f0; }
+
+        .grade-chip {
+            background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 4px;
+            font-weight: 700; font-size: 12px;
+        }
+
+        @media print {
+            header, .top-nav { display: none; }
+            body { background: white; }
+            .container { padding: 0; max-width: 100%; }
+            .hero-score { background: #0f172a !important; -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>🎓 Student Benchmark Marks & Performance</h2>
+    <div class="header-right">
+        <span class="user-tag" id="studentTag">Student</span>
+        <button class="logout" onclick="logout()">Logout</button>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="top-nav">
+        <button class="back-btn" onclick="window.location.href='/student-dashboard.html'">← Back to Dashboard</button>
+        <button class="print-btn" onclick="window.print()">🖨️ Print Benchmark Report</button>
+    </div>
+
+    <!-- Student Profile -->
+    <div class="profile-card">
+        <div class="profile-item">
+            <span>Student Name</span>
+            <strong id="pName">Loading...</strong>
+        </div>
+        <div class="profile-item">
+            <span>USN</span>
+            <strong id="pUSN">-</strong>
+        </div>
+        <div class="profile-item">
+            <span>Course & Semester</span>
+            <strong id="pCourse">-</strong>
+        </div>
+        <div class="profile-item">
+            <span>Internship Company</span>
+            <strong id="pCompany">-</strong>
+        </div>
+        <div class="profile-item">
+            <span>Assigned Faculty Guide</span>
+            <strong id="pGuide">-</strong>
+        </div>
+    </div>
+
+    <!-- Hero Scorecard -->
+    <div class="hero-score">
+        <div class="score-meta">
+            <h1>Continuous Internship Assessment 2026</h1>
+            <p>5-Component Institutional Quality Benchmark Evaluation (Total: 100 Marks)</p>
+            <span class="score-pill-status pending" id="overallStatusBadge">Pending Evaluation</span>
+        </div>
+        <div class="score-display">
+            <div class="score-number">
+                <div class="main" id="totalScoreText">0.0 / 100</div>
+                <div class="sub" id="percentageText">0.0% Aggregate</div>
+            </div>
+            <div class="grade-badge-large" id="gradeBadgeText">-</div>
+        </div>
+    </div>
+
+    <!-- Component Progress Bars -->
+    <div class="benchmarks-section">
+        <h3>Benchmark Component Progress</h3>
+        <div id="progressBarsContainer">
+            <p style="color:#64748b; font-size:14px;">Loading benchmark components...</p>
+        </div>
+    </div>
+
+    <!-- Detailed Table -->
+    <div class="table-card">
+        <h3>Detailed Assessment Breakdown</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component Name</th>
+                    <th>Max Marks</th>
+                    <th>Marks Obtained</th>
+                    <th>Percentage</th>
+                    <th>Grade</th>
+                    <th>Evaluator Remarks</th>
+                </tr>
+            </thead>
+            <tbody id="breakdownTableBody">
+                <tr><td colspan="6" style="text-align:center; padding:20px; color:#64748b;">Loading assessment records...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    const storedRole = sessionStorage.getItem("userRole");
+    const storedUser = sessionStorage.getItem("username");
+
+    fetch("/api/me")
+        .then(r => {
+            if (!r.ok) throw new Error("Not authenticated");
+            return r.json();
+        })
+        .then(u => {
+            if (!u || u.error || (!u.username && !u.user_id)) {
+                if (!storedUser) {
+                    window.location.href = "/login";
+                    return;
+                }
+            }
+            loggedUser = u;
+            const uname = (u && u.username) ? u.username : (storedUser || "");
+            document.getElementById("studentTag").innerText = `${uname}`;
+            loadStudentMarks(uname);
+        })
+        .catch(() => {
+            if (storedUser) {
+                document.getElementById("studentTag").innerText = `${storedUser}`;
+                loadStudentMarks(storedUser);
+            } else {
+                window.location.href = "/login";
+            }
+        });
+
+    function logout() {
+        fetch("/api/logout").then(() => {
+            sessionStorage.clear();
+            window.location.href = "/login";
+        });
+    }
+
+    function loadStudentMarks(usn) {
+        fetch(`/api/marks/student/${usn}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                renderStudentView(data);
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById("breakdownTableBody").innerHTML =
+                    `<tr><td colspan="6" style="text-align:center; padding:20px; color:#ef4444;">Failed to load marks. Please try refreshing.</td></tr>`;
+            });
+    }
+
+    function renderStudentView(data) {
+        const s = data.student;
+        document.getElementById("pName").innerText = s.name || "-";
+        document.getElementById("pUSN").innerText = s.usn || "-";
+        document.getElementById("pCourse").innerText = `${s.course || 'BCA'} - ${s.semester || 'Final Sem'}`;
+        document.getElementById("pCompany").innerText = s.company || "N/A";
+        document.getElementById("pGuide").innerText = s.faculty_name || s.faculty_id || "-";
+
+        document.getElementById("totalScoreText").innerText = `${data.total_obtained.toFixed(1)} / 100`;
+        document.getElementById("percentageText").innerText = `${data.percentage}% Aggregate Score`;
+        document.getElementById("gradeBadgeText").innerText = data.grade !== "-" ? data.grade : "-";
+
+        const statusBadge = document.getElementById("overallStatusBadge");
+        statusBadge.innerText = data.status;
+        statusBadge.className = `score-pill-status ${data.status.toLowerCase()}`;
+
+        // Render Progress Bars
+        let barsHtml = "";
+        let tableHtml = "";
+
+        (data.components || []).forEach(c => {
+            const pct = c.max_marks > 0 ? Math.min(100, Math.round((c.marks_obtained / c.max_marks) * 100)) : 0;
+            const barFillColor = pct >= 80 ? "linear-gradient(90deg, #10b981, #059669)" : (pct >= 50 ? "linear-gradient(90deg, #38bdf8, #0284c7)" : "linear-gradient(90deg, #f59e0b, #d97706)");
+
+            barsHtml += `
+                <div class="comp-bar-item">
+                    <div class="comp-bar-header">
+                        <span>${c.component_name}</span>
+                        <span><strong>${c.marks_obtained}</strong> / ${c.max_marks} M (${pct}%)</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width: ${pct}%; background: ${barFillColor};"></div>
+                    </div>
+                </div>
+            `;
+
+            tableHtml += `
+                <tr>
+                    <td>
+                        <strong>${c.component_name}</strong>
+                        ${c.description ? `<div style="font-size:12px; color:#64748b;">${c.description}</div>` : ''}
+                    </td>
+                    <td><strong>${c.max_marks}</strong></td>
+                    <td><strong style="color:#0284c7;">${c.marks_obtained}</strong></td>
+                    <td>${c.percentage}%</td>
+                    <td><span class="grade-chip">${c.grade}</span></td>
+                    <td><small>${c.remarks || '-'}</small></td>
+                </tr>
+            `;
+        });
+
+        document.getElementById("progressBarsContainer").innerHTML = barsHtml || "<p>No component benchmarks defined.</p>";
+        document.getElementById("breakdownTableBody").innerHTML = tableHtml || `<tr><td colspan="6">No marks available.</td></tr>`;
+    }
+</script>
+
+</body>
+</html>

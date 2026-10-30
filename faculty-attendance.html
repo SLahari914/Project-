@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Attendance Management - AI Internship System</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #333;
+        }
+
+        header {
+            background: #1565c0;
+            color: white;
+            padding: 22px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 22px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            color: #1565c0;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 20px;
+        }
+
+        .date-control-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .date-field-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .date-field-wrap label {
+            font-weight: bold;
+            color: #1e293b;
+            font-size: 15px;
+        }
+
+        .date-input {
+            padding: 10px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e3a8a;
+            outline: none;
+            background: white;
+        }
+
+        .date-input:focus {
+            border-color: #1565c0;
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.15);
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            background: white;
+            color: #334155;
+            transition: all 0.2s;
+        }
+        .btn-sm:hover {
+            background: #f1f5f9;
+        }
+        .btn-all-present {
+            background: #dcfce7;
+            color: #15803d;
+            border-color: #86efac;
+        }
+        .btn-all-present:hover {
+            background: #bbf7d0;
+        }
+        .btn-all-absent {
+            background: #fee2e2;
+            color: #b91c1c;
+            border-color: #fca5a5;
+        }
+        .btn-all-absent:hover {
+            background: #fecaca;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .stat-pill {
+            background: #f1f5f9;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .stat-present strong { color: #15803d; }
+        .stat-absent strong { color: #b91c1c; }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 13px 15px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 14.5px;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #e3f2fd;
+            color: #1565c0;
+            font-weight: 700;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Checkbox styling */
+        .checkbox-cell {
+            text-align: center;
+            width: 90px;
+        }
+
+        .attendance-chk {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: #16a34a;
+            vertical-align: middle;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 700;
+            text-align: center;
+            min-width: 80px;
+        }
+        .status-present {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+        .status-absent {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+        }
+
+        .remark-input {
+            width: 100%;
+            max-width: 240px;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 13.5px;
+            outline: none;
+            background: white;
+        }
+        .remark-input:focus {
+            border-color: #1565c0;
+        }
+
+        .action-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 22px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        button {
+            border: none;
+            border-radius: 6px;
+            padding: 12px 22px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14.5px;
+            transition: all 0.2s;
+        }
+
+        .save-btn {
+            background: #16a34a;
+            color: white;
+            box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .save-btn:hover {
+            background: #15803d;
+        }
+
+        .back {
+            background: white;
+            color: #1565c0;
+            padding: 9px 16px;
+            font-size: 14px;
+        }
+        .back:hover {
+            background: #e3f2fd;
+        }
+
+        .message {
+            font-weight: bold;
+            font-size: 14.5px;
+        }
+        .msg-success { color: #15803d; }
+        .msg-error { color: #b91c1c; }
+
+        .search-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            padding: 10px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .empty-text {
+            color: #64748b;
+            text-align: center;
+            padding: 25px;
+        }
+
+        @media(max-width: 700px) {
+            .container { padding: 12px; }
+            header { padding: 18px; flex-direction: column; align-items: flex-start; }
+            .date-control-bar { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>📅 Student Attendance Management</h1>
+    <button class="back" onclick="goBack()">Back to Dashboard</button>
+</header>
+
+<div class="container">
+
+    <!-- Mark Attendance Card -->
+    <div class="card">
+        <h2>Mark Student Attendance</h2>
+        <p style="color:#64748b; font-size:14px; margin-bottom:18px;">
+            Select the date below. Click the checkbox next to each student to mark them as <b>Present</b> (checked) or <b>Absent</b> (unchecked).
+        </p>
+
+        <!-- Date Selection & Quick Toggles -->
+        <div class="date-control-bar">
+            <div class="date-field-wrap">
+                <label for="attendanceDate">Select Attendance Date:</label>
+                <input type="date" id="attendanceDate" class="date-input" onchange="onDateChanged()">
+            </div>
+            <div class="quick-actions">
+                <button type="button" class="btn-sm btn-all-present" onclick="markAll(true)">✓ Mark All Present</button>
+                <button type="button" class="btn-sm btn-all-absent" onclick="markAll(false)">✗ Mark All Absent</button>
+            </div>
+        </div>
+
+        <!-- Live Counts Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-pill">Total Students: <strong id="statTotal">0</strong></div>
+            <div class="stat-pill stat-present">Present: <strong id="statPresent">0</strong></div>
+            <div class="stat-pill stat-absent">Absent: <strong id="statAbsent">0</strong></div>
+            <div class="stat-pill">Attendance Rate: <strong id="statRate">0%</strong></div>
+        </div>
+
+        <!-- Student Attendance List Table -->
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px; text-align:center;">#</th>
+                        <th class="checkbox-cell" title="Check box = Present, Uncheck = Absent">Present?</th>
+                        <th>Status</th>
+                        <th>Student USN</th>
+                        <th>Student Name</th>
+                        <th>Company / Course</th>
+                        <th>Remarks (Optional)</th>
+                    </tr>
+                </thead>
+                <tbody id="studentAttendanceTableBody">
+                    <tr><td colspan="7" class="empty-text">Loading student list...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="action-row">
+            <button type="button" class="save-btn" onclick="saveAttendance()">
+                💾 Save Attendance for Selected Date
+            </button>
+            <div id="saveMessage" class="message"></div>
+        </div>
+    </div>
+
+    <!-- Attendance History Records Card -->
+    <div class="card">
+        <h2>Attendance History Records</h2>
+        
+        <div class="search-row">
+            <input type="text" id="historySearch" class="search-box" placeholder="🔍 Search records by USN, Name, or Date..." oninput="renderHistoryTable()">
+            <input type="date" id="historyDateFilter" class="date-input" onchange="renderHistoryTable()" title="Filter by specific date">
+            <button type="button" class="btn-sm" onclick="clearHistoryFilter()">Clear Date Filter</button>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Student Name</th>
+                        <th>USN</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceHistoryBody">
+                    <tr><td colspan="5" class="empty-text">Loading attendance history records...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let currentRole = localStorage.getItem("userRole") || "faculty";
+    let currentUser = localStorage.getItem("username") || "";
+    let studentList = [];
+    let allAttendanceRecords = [];
+
+    // Authenticate & load data
+    async function init() {
+        try {
+            const meRes = await fetch("/api/me");
+            if (meRes.ok) {
+                const me = await meRes.json();
+                if (me.role) currentRole = me.role;
+                if (me.username) currentUser = me.username;
+            }
+        } catch (e) {
+            console.warn("Could not verify session via /api/me:", e);
+        }
+
+        if (currentRole !== "faculty" && currentRole !== "administrator") {
+            alert("Please log in with an authorized faculty or administrator account.");
+            window.location.href = "/login";
+            return;
+        }
+
+        // Set default date to today in YYYY-MM-DD
+        document.getElementById("attendanceDate").value = new Date().toLocaleDateString("en-CA");
+
+        await Promise.all([loadStudents(), loadHistoryRecords()]);
+        renderStudentList();
+    }
+
+    async function loadStudents() {
+        try {
+            const res = await fetch("/api/students");
+            if (res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    studentList = data;
+                    return;
+                }
+            }
+        } catch (e) {
+            console.warn("Error fetching students from server:", e);
+        }
+
+        // Fallback to local storage if server returned empty
+        try {
+            studentList = JSON.parse(localStorage.getItem("students")) || [];
+        } catch {
+            studentList = [];
+        }
+    }
+
+    async function loadHistoryRecords() {
+        try {
+            const res = await fetch("/api/attendance");
+            if (res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    allAttendanceRecords = data.map(r => ({
+                        usn: r.student_usn || r.usn,
+                        name: r.student_name || r.name || "",
+                        date: r.date,
+                        status: r.status || "Present",
+                        remarks: r.remarks || ""
+                    }));
+                    renderHistoryTable();
+                    return;
+                }
+            }
+        } catch (e) {
+            console.warn("Error fetching attendance history:", e);
+        }
+
+        // Fallback to localStorage
+        try {
+            allAttendanceRecords = JSON.parse(localStorage.getItem("attendanceRecords")) || [];
+        } catch {
+            allAttendanceRecords = [];
+        }
+        renderHistoryTable();
+    }
+
+    function onDateChanged() {
+        const msg = document.getElementById("saveMessage");
+        if (msg) msg.textContent = "";
+        renderStudentList();
+    }
+
+    function renderStudentList() {
+        const tbody = document.getElementById("studentAttendanceTableBody");
+        const selDate = document.getElementById("attendanceDate").value;
+
+        if (!studentList || studentList.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="empty-text">No students found.</td></tr>';
+            updateLiveStats();
+            return;
+        }
+
+        // Map existing attendance for selected date
+        const dateRecordMap = {};
+        allAttendanceRecords.forEach(r => {
+            if (r.date === selDate) {
+                dateRecordMap[String(r.usn).toLowerCase()] = r;
+            }
+        });
+
+        tbody.innerHTML = "";
+        studentList.forEach((s, idx) => {
+            const usnKey = String(s.usn).toLowerCase();
+            const existing = dateRecordMap[usnKey];
+
+            // If recorded earlier: use recorded status. If not recorded yet: default to Present (checked).
+            const isPresent = existing ? (String(existing.status).toLowerCase() === "present") : true;
+            const remarksVal = existing ? (existing.remarks || "") : "";
+
+            const row = document.createElement("tr");
+            row.id = `row_${s.usn}`;
+
+            row.innerHTML = `
+                <td style="text-align:center; color:#64748b;">${idx + 1}</td>
+                <td class="checkbox-cell">
+                    <input type="checkbox" class="attendance-chk" id="chk_${s.usn}" 
+                        ${isPresent ? "checked" : ""} 
+                        onchange="onStudentCheckChanged('${s.usn}')"
+                        title="Click to mark Present or Absent">
+                </td>
+                <td>
+                    <span class="status-badge ${isPresent ? 'status-present' : 'status-absent'}" id="badge_${s.usn}">
+                        ${isPresent ? '✓ Present' : '✗ Absent'}
+                    </span>
+                </td>
+                <td><strong style="font-family:monospace; font-size:14px;">${s.usn}</strong></td>
+                <td><b>${s.name || s.student_name || "Student"}</b></td>
+                <td><small style="color:#475569;">${s.company || s.course || "BCA"}</small></td>
+                <td>
+                    <input type="text" class="remark-input" id="rem_${s.usn}" value="${remarksVal.replace(/"/g, '&quot;')}" placeholder="e.g. On-site project work">
+                </td>
+            `;
+
+            tbody.appendChild(row);
+        });
+
+        updateLiveStats();
+    }
+
+    function onStudentCheckChanged(usn) {
+        const chk = document.getElementById(`chk_${usn}`);
+        const badge = document.getElementById(`badge_${usn}`);
+        if (!chk || !badge) return;
+
+        if (chk.checked) {
+            badge.className = "status-badge status-present";
+            badge.textContent = "✓ Present";
+        } else {
+            badge.className = "status-badge status-absent";
+            badge.textContent = "✗ Absent";
+        }
+        updateLiveStats();
+    }
+
+    function markAll(present) {
+        studentList.forEach(s => {
+            const chk = document.getElementById(`chk_${s.usn}`);
+            if (chk) {
+                chk.checked = present;
+                onStudentCheckChanged(s.usn);
+            }
+        });
+        updateLiveStats();
+    }
+
+    function updateLiveStats() {
+        const total = studentList.length;
+        let presentCount = 0;
+
+        studentList.forEach(s => {
+            const chk = document.getElementById(`chk_${s.usn}`);
+            if (chk && chk.checked) presentCount++;
+        });
+
+        const absentCount = total - presentCount;
+        const rate = total > 0 ? Math.round((presentCount / total) * 100) : 0;
+
+        document.getElementById("statTotal").textContent = total;
+        document.getElementById("statPresent").textContent = presentCount;
+        document.getElementById("statAbsent").textContent = absentCount;
+        document.getElementById("statRate").textContent = `${rate}%`;
+    }
+
+    async function saveAttendance() {
+        const date = document.getElementById("attendanceDate").value;
+        const msgEl = document.getElementById("saveMessage");
+        msgEl.className = "message";
+        msgEl.textContent = "";
+
+        if (!date) {
+            alert("Please select an attendance date.");
+            return;
+        }
+
+        if (studentList.length === 0) {
+            alert("No students available to mark attendance.");
+            return;
+        }
+
+        const batchRecords = [];
+        let presentCount = 0;
+        let absentCount = 0;
+
+        studentList.forEach(s => {
+            const chk = document.getElementById(`chk_${s.usn}`);
+            const remInput = document.getElementById(`rem_${s.usn}`);
+            const isPresent = chk ? chk.checked : true;
+            if (isPresent) presentCount++; else absentCount++;
+
+            batchRecords.push({
+                usn: s.usn,
+                date: date,
+                status: isPresent ? "Present" : "Absent",
+                remarks: remInput ? remInput.value.trim() : "",
+                facultyId: currentUser
+            });
+        });
+
+        msgEl.textContent = "Saving attendance...";
+
+        // 1. Send to backend server
+        try {
+            await fetch("/api/attendance", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    date: date,
+                    records: batchRecords
+                })
+            });
+        } catch (e) {
+            console.warn("Could not sync attendance to server API:", e);
+        }
+
+        // 2. Persist in localStorage for instant synchronization across all dashboards & student views
+        try {
+            let localRecords = JSON.parse(localStorage.getItem("attendanceRecords") || "[]");
+            // Remove old entries for this date
+            localRecords = localRecords.filter(r => r.date !== date);
+            // Append new entries
+            localRecords.push(...batchRecords);
+            localStorage.setItem("attendanceRecords", JSON.stringify(localRecords));
+
+            // Update percentage summary map in localStorage
+            const summary = JSON.parse(localStorage.getItem("attendance") || "{}");
+            studentList.forEach(s => {
+                const sRecords = localRecords.filter(r => String(r.usn).toLowerCase() === String(s.usn).toLowerCase());
+                if (sRecords.length > 0) {
+                    const attended = sRecords.filter(r => String(r.status).toLowerCase() === "present").length;
+                    summary[s.usn] = Math.round((attended / sRecords.length) * 100);
+                }
+            });
+            localStorage.setItem("attendance", JSON.stringify(summary));
+        } catch (e) {
+            console.error("Local storage error:", e);
+        }
+
+        // 3. Update in-memory history records
+        allAttendanceRecords = allAttendanceRecords.filter(r => r.date !== date);
+        batchRecords.forEach(b => {
+            const stu = studentList.find(s => s.usn === b.usn);
+            allAttendanceRecords.push({
+                usn: b.usn,
+                name: stu ? stu.name : b.usn,
+                date: b.date,
+                status: b.status,
+                remarks: b.remarks
+            });
+        });
+
+        msgEl.className = "message msg-success";
+        msgEl.textContent = `✓ Attendance for ${date} saved successfully! (${presentCount} Present, ${absentCount} Absent)`;
+
+        renderHistoryTable();
+    }
+
+    function renderHistoryTable() {
+        const tbody = document.getElementById("attendanceHistoryBody");
+        const query = (document.getElementById("historySearch").value || "").toLowerCase().trim();
+        const dateFilter = document.getElementById("historyDateFilter").value;
+
+        let filtered = allAttendanceRecords.slice().sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+
+        if (dateFilter) {
+            filtered = filtered.filter(r => r.date === dateFilter);
+        }
+
+        if (query) {
+            filtered = filtered.filter(r =>
+                (r.usn || "").toLowerCase().includes(query) ||
+                (r.name || "").toLowerCase().includes(query) ||
+                (r.date || "").toLowerCase().includes(query) ||
+                (r.status || "").toLowerCase().includes(query) ||
+                (r.remarks || "").toLowerCase().includes(query)
+            );
+        }
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="empty-text">No matching attendance records found.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = "";
+        filtered.forEach(r => {
+            const isPresent = String(r.status).toLowerCase() === "present";
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td><strong>${r.date || "-"}</strong></td>
+                <td><b>${r.name || r.student_name || "Student"}</b></td>
+                <td><span style="font-family:monospace; color:#475569;">${r.usn || "-"}</span></td>
+                <td>
+                    <span class="status-badge ${isPresent ? 'status-present' : 'status-absent'}">
+                        ${isPresent ? '✓ Present' : '✗ Absent'}
+                    </span>
+                </td>
+                <td style="color:#475569;">${r.remarks || "-"}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function clearHistoryFilter() {
+        document.getElementById("historyDateFilter").value = "";
+        document.getElementById("historySearch").value = "";
+        renderHistoryTable();
+    }
+
+    function goBack() {
+        if (currentRole === "administrator") {
+            window.location.href = "/admin-dashboard.html";
+        } else {
+            window.location.href = "/staff/dashboard";
+        }
+    }
+
+    init();
+</script>
+
+</body>
+</html>

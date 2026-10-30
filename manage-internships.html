@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Internships - AI Internship System</title>
+    <style>
+        * { box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { margin: 0; background: #f1f7ff; color: #222; }
+        header {
+            background: linear-gradient(135deg, #2196f3, #1565c0);
+            color: white; padding: 18px 30px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        header h2 { margin: 0; }
+        .logout {
+            background: white; color: #1565c0; border: none;
+            padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: bold;
+        }
+        .container { padding: 30px; }
+        .back-btn {
+            background: #607d8b; color: white; border: none;
+            padding: 10px 18px; border-radius: 6px; cursor: pointer; margin-bottom: 20px;
+        }
+        .top-section {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 20px;
+        }
+        .top-section h1 { color: #1565c0; margin: 0; }
+        .add-btn {
+            background: #1565c0; color: white; border: none;
+            padding: 12px 20px; border-radius: 6px; cursor: pointer; font-size: 15px;
+        }
+        .search-box {
+            width: 100%; padding: 12px; border: 1px solid #ccc;
+            border-radius: 6px; margin-bottom: 20px; font-size: 15px;
+        }
+        .table-container {
+            background: white; padding: 20px; border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08); overflow-x: auto;
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background: #e3f2fd; color: #1565c0; }
+        .view-student-btn {
+            background: #0284c7; color: white; border: none;
+            padding: 7px 12px; border-radius: 5px; cursor: pointer;
+            font-weight: bold; margin-right: 5px; transition: background 0.2s;
+        }
+        .view-student-btn:hover { background: #0369a1; }
+        .approve-btn {
+            background: #16a34a; color: white; border: none;
+            padding: 7px 12px; border-radius: 5px; cursor: pointer;
+            font-weight: bold; margin-right: 5px; transition: background 0.2s;
+        }
+        .approve-btn:hover { background: #15803d; }
+        .approve-btn.approved {
+            background: #dcfce7; color: #15803d; border: 1px solid #86efac; cursor: default;
+        }
+        .edit-btn {
+            background: #ff9800; color: white; border: none;
+            padding: 7px 12px; border-radius: 5px; cursor: pointer;
+        }
+        .delete-btn {
+            background: #f44336; color: white; border: none;
+            padding: 7px 12px; border-radius: 5px; cursor: pointer; margin-left: 5px;
+        }
+        .week-approve-btn {
+            padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;
+            cursor: pointer; border: 1px solid #16a34a; background: #f0fdf4; color: #16a34a;
+            transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+        }
+        .week-approve-btn:hover {
+            background: #16a34a; color: white;
+        }
+        .week-approve-btn.approved {
+            background: #16a34a; color: white; border-color: #15803d;
+            box-shadow: 0 1px 3px rgba(22,163,74,0.3);
+        }
+        .week-approve-btn.approved:hover {
+            background: #dc2626; border-color: #b91c1c; color: white;
+        }
+        .sheet-modal {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.65);
+            justify-content: center; align-items: flex-start;
+            overflow-y: auto; padding: 20px 10px; z-index: 9999;
+        }
+        .sheet-container {
+            background: white; width: 100%; max-width: 1050px;
+            border-radius: 8px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            margin: auto;
+        }
+        .sheet-paper {
+            background: #fff; color: #000; border: 2px solid #000;
+            padding: 24px; font-family: 'Times New Roman', Times, serif;
+        }
+        .sheet-header-title {
+            text-align: center; border-bottom: 2px solid #000;
+            padding-bottom: 12px; margin-bottom: 12px;
+        }
+        .sheet-header-title h2 {
+            margin: 0; font-size: 22px; font-weight: bold; letter-spacing: 0.5px;
+            text-transform: uppercase; color: #000;
+        }
+        .sheet-header-title p {
+            margin: 3px 0 0; font-size: 12px; color: #111;
+        }
+        .sheet-header-title h3 {
+            margin: 10px 0 0; font-size: 16px; font-weight: bold;
+            text-decoration: underline; letter-spacing: 1px; text-transform: uppercase;
+        }
+        .sheet-table {
+            width: 100%; border-collapse: collapse; font-family: 'Times New Roman', Times, serif;
+        }
+        .sheet-table th, .sheet-table td {
+            border: 1px solid #000; padding: 7px 8px;
+        }
+        .sheet-input {
+            width: 100%; border: 1px solid transparent; background: transparent;
+            font-family: inherit; font-size: 13px; font-weight: normal; color: #000;
+            box-sizing: border-box; padding: 2px;
+        }
+        .sheet-input:focus {
+            border-bottom: 1px solid #2563eb; background: #f8fafc; outline: none;
+        }
+        .sheet-textarea {
+            width: 100%; min-height: 44px; border: 1px solid #cbd5e1;
+            border-radius: 3px; font-family: inherit; font-size: 12px;
+            padding: 5px; box-sizing: border-box; resize: vertical;
+        }
+        .sheet-textarea:focus {
+            border-color: #2563eb; background: #f0fdf4; outline: none;
+        }
+        @media print {
+            body * { visibility: hidden; }
+            #studentSheetModal, #studentSheetModal * { visibility: visible; }
+            #studentSheetModal {
+                position: absolute; left: 0; top: 0; width: 100%;
+                background: white; padding: 0; margin: 0; display: block !important;
+            }
+            .sheet-container {
+                max-width: 100% !important; width: 100% !important;
+                box-shadow: none !important; padding: 0 !important; margin: 0 !important;
+            }
+            .no-print { display: none !important; }
+            .sheet-paper { border: 2px solid #000 !important; padding: 15px !important; }
+            .sheet-textarea {
+                border: none !important; background: transparent !important;
+                resize: none !important; padding: 0 !important; font-size: 11px !important;
+            }
+            .sheet-input { border: none !important; background: transparent !important; }
+            .week-approve-btn { display: none !important; }
+            .print-approved-stamp { display: block !important; }
+        }
+        .print-approved-stamp { display: none; text-align: center; font-weight: bold; font-size: 11px; color: #166534; }
+        .modal {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.5);
+            justify-content: center; align-items: center;
+            overflow-y: auto; padding: 20px;
+        }
+        .modal-content {
+            background: white; width: 90%; max-width: 600px;
+            padding: 25px; border-radius: 10px;
+        }
+        .modal-content h2 { color: #1565c0; margin-top: 0; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;
+        }
+        .save-btn {
+            background: #1565c0; color: white; border: none;
+            padding: 10px 20px; border-radius: 5px; cursor: pointer;
+        }
+        .cancel-btn {
+            background: #777; color: white; border: none;
+            padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-left: 8px;
+        }
+        .empty-message { text-align: center; padding: 20px; color: #777; }
+        @media(max-width: 700px) {
+            .top-section { flex-direction: column; align-items: flex-start; gap: 15px; }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>AI-Powered Internship System</h2>
+    <button class="logout" onclick="logout()">Logout</button>
+</header>
+
+<div class="container">
+
+    <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
+
+    <div class="top-section">
+        <h1 id="pageTitle">Manage Internships</h1>
+        <button class="add-btn" onclick="openAddForm()">+ Add Internship</button>
+    </div>
+
+    <input type="text" id="searchInput" class="search-box"
+        placeholder="Search by company, title or student..." onkeyup="searchInternships()">
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student</th><th>Company</th><th>Internship Title</th>
+                    <th>Faculty</th><th>Start Date</th><th>End Date</th>
+                    <th>Status</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="internshipTableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- ADD / EDIT INTERNSHIP MODAL -->
+<div class="modal" id="internshipModal">
+    <div class="modal-content">
+        <h2 id="modalTitle">Add Internship</h2>
+        <form id="internshipForm">
+            <div class="form-group">
+                <label>Student</label>
+                <select id="student" required>
+                    <option value="">Select Student</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Company Name</label>
+                <input type="text" id="company" placeholder="Example: Infosys" required>
+            </div>
+            <div class="form-group">
+                <label>Internship Title</label>
+                <input type="text" id="title" placeholder="Example: Web Development Intern" required>
+            </div>
+            <div class="form-group">
+                <label>Assigned Faculty</label>
+                <select id="faculty" required>
+                    <option value="">Select Faculty</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" id="startDate" required>
+            </div>
+            <div class="form-group">
+                <label>End Date</label>
+                <input type="date" id="endDate" required>
+            </div>
+            <div class="form-group">
+                <label>Internship Status</label>
+                <select id="status">
+                    <option value="Not Started">Not Started</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Active">Active</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+            <button type="submit" class="save-btn">Save Internship</button>
+            <button type="button" class="cancel-btn" onclick="closeForm()">Cancel</button>
+        </form>
+    </div>
+</div>
+
+
+<!-- STUDENT PROGRESS REGISTER MODAL -->
+<div class="sheet-modal" id="studentSheetModal">
+    <div class="sheet-container">
+        <!-- Top Toolbar (Hidden when printing) -->
+        <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px;">
+            <div style="font-weight: bold; font-size: 16px; color: #1e3a8a; display: flex; align-items: center; gap: 10px;">
+                <span>📋 Project Internship Progress Register</span>
+                <span id="sheetApprovedBadge" style="font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 12px; background: #dcfce7; color: #15803d; border: 1px solid #86efac;">0 / 12 Weeks Approved</span>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" onclick="approveAllWeeks()" style="background: #16a34a; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-weight: bold;">✓ Approve All Weeks</button>
+                <button type="button" onclick="saveCurrentSheet()" style="background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;">💾 Save Sheet</button>
+                <button type="button" onclick="window.print()" style="background: #475569; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-weight: bold;">🖨️ Print / PDF</button>
+                <button type="button" onclick="closeStudentSheet()" style="background: #ef4444; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-weight: bold;">✕ Close</button>
+            </div>
+        </div>
+
+        <!-- The Akash Register Document -->
+        <div class="sheet-paper" id="sheetPaper">
+            <!-- Header -->
+            <div class="sheet-header-title">
+                <h2>AKASH GLOBAL COLLEGE OF MANAGEMENT AND SCIENCE</h2>
+                <p>Approved by AICTE New Delhi, Recognized by Govt. of Karnataka, Affiliated to Bengaluru City University</p>
+                <p>No. 43(p-1), KIA road, Doddajala, Bangalore North, Bangalore-562157</p>
+                <h3>PROJECT INTERNSHIP PROGRESS REGISTER 2025-26</h3>
+            </div>
+
+            <!-- Student Metadata Grid -->
+            <table class="sheet-table" style="margin-bottom: 14px; font-size: 13px;">
+                <tr>
+                    <td style="width: 18%; font-weight: bold; background: #f8fafc;">Name of Student:</td>
+                    <td style="width: 32%;"><input type="text" id="sheetStudentName" class="sheet-input"></td>
+                    <td style="width: 15%; font-weight: bold; background: #f8fafc;">USN:</td>
+                    <td style="width: 35%;"><input type="text" id="sheetStudentUsn" class="sheet-input" readonly></td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold; background: #f8fafc;">Contact No:</td>
+                    <td><input type="text" id="sheetStudentPhone" class="sheet-input"></td>
+                    <td style="font-weight: bold; background: #f8fafc;">Course / Sem:</td>
+                    <td><input type="text" id="sheetStudentCourse" class="sheet-input" value="MCA / Final Year"></td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold; background: #f8fafc;">Name of Company / Org:</td>
+                    <td colspan="3"><input type="text" id="sheetCompanyName" class="sheet-input"></td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold; background: #f8fafc;">Project / Internship Title:</td>
+                    <td colspan="3"><input type="text" id="sheetProjectTitle" class="sheet-input"></td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold; background: #f8fafc;">External Guide & Contact:</td>
+                    <td><input type="text" id="sheetExternalGuide" class="sheet-input" placeholder="Name, Designation, Phone"></td>
+                    <td style="font-weight: bold; background: #f8fafc;">Internal Guide & Contact:</td>
+                    <td><input type="text" id="sheetInternalGuide" class="sheet-input" placeholder="Faculty Guide Name & Phone"></td>
+                </tr>
+            </table>
+
+            <!-- 12-Week Table: Sl. No | Week No | Work Done / Progress | Guide Remarks | Approve -->
+            <table class="sheet-table" style="margin-bottom: 25px; font-size: 12px;">
+                <thead>
+                    <tr style="background: #f1f5f9; text-align: center;">
+                        <th style="width: 55px; text-align: center;">Sl. No</th>
+                        <th style="width: 105px; text-align: center;">Week No</th>
+                        <th style="text-align: left;">Work Done / Progress</th>
+                        <th style="width: 240px; text-align: left;">Guide Remarks</th>
+                        <th style="width: 125px; text-align: center;">Approve</th>
+                    </tr>
+                </thead>
+                <tbody id="sheetWeeksBody">
+                    <!-- 12 rows dynamically rendered -->
+                </tbody>
+            </table>
+
+            <!-- Signatures Section -->
+            <div style="display: flex; justify-content: space-between; margin-top: 45px; padding: 0 15px; text-align: center; font-size: 13px; font-weight: bold;">
+                <div style="width: 30%;">
+                    <div style="border-top: 1px dashed #000; padding-top: 8px;">Signature of Internal Guide</div>
+                    <div style="font-size: 11px; font-weight: normal; color: #333; margin-top: 4px;" id="sheetGuideSignName">-</div>
+                </div>
+                <div style="width: 30%;">
+                    <div style="border-top: 1px dashed #000; padding-top: 8px;">Signature of HOD</div>
+                    <div style="font-size: 11px; font-weight: normal; color: #333; margin-top: 4px;">Head of Department</div>
+                </div>
+                <div style="width: 30%;">
+                    <div style="border-top: 1px dashed #000; padding-top: 8px;">Signature of Principal</div>
+                    <div style="font-size: 11px; font-weight: normal; color: #333; margin-top: 4px;">Principal / Director</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    let internships = [];
+    let editID      = null;
+    let currentRole = sessionStorage.getItem("userRole") || localStorage.getItem("userRole") || "administrator";
+    let currentUsername = sessionStorage.getItem("username") || localStorage.getItem("username") || "";
+
+    function checkUserRole() {
+        return fetch("/api/me")
+            .then(r => r.json())
+            .then(function(me) {
+                if (me && me.role) {
+                    currentRole = me.role;
+                    currentUsername = me.username || currentUsername;
+                    if (currentRole === "faculty") {
+                        const titleEl = document.getElementById("pageTitle");
+                        if (titleEl) titleEl.innerText = "Monitor Assigned Internships";
+                    }
+                }
+            })
+            .catch(() => {});
+    }
+
+    function loadAll() {
+        Promise.all([
+            fetch("/api/internships").then(r => r.json()),
+            fetch("/api/students").then(r => r.json()),
+            fetch("/api/faculty").then(r => r.json())
+        ]).then(function([iData, sData, fData]) {
+            internships = Array.isArray(iData) ? iData : [];
+            displayInternships(internships);
+
+            // Populate dropdowns
+            const studentSel = document.getElementById("student");
+            const facultySel = document.getElementById("faculty");
+            studentSel.innerHTML = '<option value="">Select Student</option>';
+            facultySel.innerHTML = '<option value="">Select Faculty</option>';
+            (sData || []).forEach(s => {
+                studentSel.innerHTML += `<option value="${s.usn}">${s.usn} - ${s.name}</option>`;
+            });
+            (fData || []).forEach(f => {
+                facultySel.innerHTML += `<option value="${f.faculty_id}">${f.faculty_id} - ${f.name}</option>`;
+            });
+        }).catch(() => alert("Failed to load data from server."));
+    }
+
+    function displayInternships(list) {
+        const tbody = document.getElementById("internshipTableBody");
+        tbody.innerHTML = "";
+        if (!list || list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="empty-message">No internships found.</td></tr>';
+            return;
+        }
+        list.forEach(function(i) {
+            const st = i.status || "Not Started";
+            let bColor = "#fef3c7", textColor = "#b45309";
+            if (st === "Active") {
+                bColor = "#dcfce7"; textColor = "#15803d";
+            } else if (st === "Approved") {
+                bColor = "#dcfce7"; textColor = "#166534";
+            } else if (st.toLowerCase().includes("progress") || st.toLowerCase().includes("process")) {
+                bColor = "#e0f2fe"; textColor = "#0369a1";
+            } else if (st === "Completed") {
+                bColor = "#dbeafe"; textColor = "#1d4ed8";
+            }
+            const statusBadge = `<span style="background:${bColor}; color:${textColor}; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold;">${st}</span>`;
+
+            let approveBtn = "";
+            if (currentRole === "administrator") {
+                if (st === "Approved") {
+                    approveBtn = `<button class="approve-btn approved" disabled title="Internship is Approved">✓ Approved</button>`;
+                } else {
+                    approveBtn = `<button class="approve-btn" onclick="approveInternship(${i.id}, '${(i.student_name || i.student_usn).replace(/'/g, "\\'")}')" title="Approve Student Internship">✓ Approve</button>`;
+                }
+            }
+
+            tbody.innerHTML += `<tr>
+                <td><b>${i.student_name || i.student_usn}</b><br><small style="color:#64748b;">${i.student_usn}</small></td>
+                <td>${i.company}</td>
+                <td>${i.title}</td>
+                <td>${i.faculty_name || i.faculty_id}</td>
+                <td>${i.start_date || "-"}</td>
+                <td>${i.end_date   || "-"}</td>
+                <td>${statusBadge}</td>
+                <td style="white-space: nowrap;">
+                    <button class="view-student-btn" onclick="openStudentSheet('${i.student_usn}')" title="View Internship Progress Register Sheet">👁️ View Student</button>
+                    ${approveBtn}
+                    <button class="edit-btn"   onclick="editInternship(${i.id})">Edit</button>
+                    <button class="delete-btn" onclick="deleteInternship(${i.id})">Delete</button>
+                </td>
+            </tr>`;
+        });
+    }
+
+    function openAddForm() {
+        editID = null;
+        document.getElementById("modalTitle").innerText = "Add Internship";
+        document.getElementById("internshipForm").reset();
+        if (currentRole === "faculty" && currentUsername) {
+            const facultySel = document.getElementById("faculty");
+            if (facultySel) facultySel.value = currentUsername;
+        }
+        document.getElementById("internshipModal").style.display = "flex";
+    }
+
+    function closeForm() {
+        document.getElementById("internshipModal").style.display = "none";
+    }
+
+    document.getElementById("internshipForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const payload = {
+            student:   document.getElementById("student").value,
+            company:   document.getElementById("company").value.trim(),
+            title:     document.getElementById("title").value.trim(),
+            faculty:   document.getElementById("faculty").value,
+            startDate: document.getElementById("startDate").value,
+            endDate:   document.getElementById("endDate").value,
+            status:    document.getElementById("status").value
+        };
+        const url    = editID ? "/api/internships/" + editID : "/api/internships";
+        const method = editID ? "PUT" : "POST";
+        fetch(url, { method, headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) })
+            .then(r => r.json())
+            .then(function(data) {
+                if (data.success) { loadAll(); closeForm(); }
+                else { alert(data.error || "Failed to save internship."); }
+            })
+            .catch(() => alert("Server error."));
+    });
+
+    function editInternship(id) {
+        const i = internships.find(x => x.id === id);
+        if (!i) return;
+        editID = id;
+        document.getElementById("modalTitle").innerText = "Edit Internship";
+        document.getElementById("student").value   = i.student_usn;
+        document.getElementById("company").value   = i.company;
+        document.getElementById("title").value     = i.title;
+        document.getElementById("faculty").value   = i.faculty_id;
+        document.getElementById("startDate").value = i.start_date;
+        document.getElementById("endDate").value   = i.end_date;
+        document.getElementById("status").value    = i.status;
+        document.getElementById("internshipModal").style.display = "flex";
+    }
+
+    function deleteInternship(id) {
+        if (!confirm("Delete this internship?")) return;
+        fetch("/api/internships/" + id, { method: "DELETE" })
+            .then(r => r.json())
+            .then(d => { if (d.success) loadAll(); else alert(d.error || "Failed to delete internship."); });
+    }
+
+    function approveInternship(id, studentName) {
+        if (!confirm(`Are you sure you want to approve the internship for ${studentName}?`)) return;
+        fetch("/api/internships/" + id + "/approve", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" }
+        })
+        .then(r => r.json())
+        .then(function(data) {
+            if (data.success) {
+                loadAll();
+            } else {
+                alert(data.error || "Failed to approve internship.");
+            }
+        })
+        .catch(() => alert("Server error approving internship."));
+    }
+
+    function searchInternships() {
+        const q = document.getElementById("searchInput").value.toLowerCase();
+        displayInternships(internships.filter(i =>
+            (i.company || "").toLowerCase().includes(q) ||
+            (i.title   || "").toLowerCase().includes(q) ||
+            (i.student_name || "").toLowerCase().includes(q) ||
+            (i.student_usn  || "").toLowerCase().includes(q)
+        ));
+    }
+
+    function goBack() {
+        if (currentRole === "faculty") {
+            window.location.href = "/staff/dashboard";
+        } else {
+            window.location.href = "/admin/dashboard";
+        }
+    }
+
+    function logout() {
+        fetch("/api/logout").then(() => {
+            sessionStorage.clear();
+            localStorage.clear();
+            window.location.href = "/login.html";
+        });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // PROGRESS REGISTER SHEET LOGIC
+    // ─────────────────────────────────────────────────────────────────────────
+    let currentSheetUsn = null;
+    let currentSheetData = null;
+
+    function openStudentSheet(usn) {
+        currentSheetUsn = usn;
+        fetch("/api/internships/progress-sheet/" + encodeURIComponent(usn))
+            .then(r => r.json())
+            .then(function(res) {
+                if (res.error) {
+                    alert(res.error);
+                    return;
+                }
+                const stu = res.student || {};
+                const savedSheet = res.sheet;
+                const updates = res.updates || [];
+
+                // Populate metadata
+                if (savedSheet && savedSheet.meta) {
+                    document.getElementById("sheetStudentName").value = savedSheet.meta.student_name || stu.name || "";
+                    document.getElementById("sheetStudentUsn").value = savedSheet.meta.student_usn || stu.usn || "";
+                    document.getElementById("sheetStudentPhone").value = savedSheet.meta.student_phone || (stu.phone !== "-" ? stu.phone : "");
+                    document.getElementById("sheetStudentCourse").value = savedSheet.meta.student_course || stu.course || "MCA / Final Year";
+                    document.getElementById("sheetCompanyName").value = savedSheet.meta.company || (stu.company !== "-" ? stu.company : "");
+                    document.getElementById("sheetProjectTitle").value = savedSheet.meta.title || (stu.title !== "-" ? stu.title : "");
+                    document.getElementById("sheetExternalGuide").value = savedSheet.meta.external_guide || (stu.external_guide !== "-" ? stu.external_guide : "");
+                    document.getElementById("sheetInternalGuide").value = savedSheet.meta.internal_guide || (stu.faculty_name ? stu.faculty_name + (stu.faculty_phone && stu.faculty_phone !== "-" ? " (" + stu.faculty_phone + ")" : "") : "");
+                    document.getElementById("sheetGuideSignName").innerText = savedSheet.meta.internal_guide || stu.faculty_name || "Faculty Guide";
+                } else {
+                    document.getElementById("sheetStudentName").value = stu.name || "";
+                    document.getElementById("sheetStudentUsn").value = stu.usn || "";
+                    document.getElementById("sheetStudentPhone").value = (stu.phone && stu.phone !== "-") ? stu.phone : "";
+                    document.getElementById("sheetStudentCourse").value = stu.course || "MCA / Final Year";
+                    document.getElementById("sheetCompanyName").value = (stu.company && stu.company !== "-") ? stu.company : "";
+                    document.getElementById("sheetProjectTitle").value = (stu.title && stu.title !== "-") ? stu.title : "";
+                    document.getElementById("sheetExternalGuide").value = (stu.external_guide && stu.external_guide !== "-") ? stu.external_guide : "";
+                    document.getElementById("sheetInternalGuide").value = stu.faculty_name ? (stu.faculty_name + (stu.faculty_phone && stu.faculty_phone !== "-" ? " (" + stu.faculty_phone + ")" : "")) : "";
+                    document.getElementById("sheetGuideSignName").innerText = stu.faculty_name || "Faculty Guide";
+                }
+
+                // Prepare 12 weeks
+                let weeks = [];
+                if (savedSheet && Array.isArray(savedSheet.weeks) && savedSheet.weeks.length === 12) {
+                    weeks = savedSheet.weeks;
+                } else {
+                    for (let i = 1; i <= 12; i++) {
+                        const wStr = "Week - " + (i < 10 ? "0" + i : i);
+                        let defWork = "";
+                        if (updates[i - 1]) {
+                            defWork = updates[i - 1].work_done || updates[i - 1].description || "";
+                        }
+                        weeks.push({
+                            sl: i,
+                            week: wStr,
+                            work: defWork,
+                            remarks: "",
+                            approved: false
+                        });
+                    }
+                }
+                currentSheetData = { weeks: weeks };
+                renderSheetWeeks();
+                document.getElementById("studentSheetModal").style.display = "flex";
+            })
+            .catch(function(err) {
+                console.error(err);
+                alert("Failed to load student progress register sheet.");
+            });
+    }
+
+    function renderSheetWeeks() {
+        if (!currentSheetData || !currentSheetData.weeks) return;
+        const tbody = document.getElementById("sheetWeeksBody");
+        tbody.innerHTML = "";
+        let approvedCount = 0;
+
+        currentSheetData.weeks.forEach(function(w, idx) {
+            if (w.approved) approvedCount++;
+            const isApproved = !!w.approved;
+            const approveBtnHtml = isApproved
+                ? `<button type="button" class="week-approve-btn approved" onclick="toggleWeekApprove(${idx})" title="Click to toggle approval">✓ Approved</button>`
+                : `<button type="button" class="week-approve-btn" onclick="toggleWeekApprove(${idx})" title="Click to approve week">✓ Approve</button>`;
+
+            const printStamp = isApproved
+                ? `<div class="print-approved-stamp">✓ APPROVED<br><small style="font-size:9px;">GUIDE SIGNED</small></div>`
+                : `<div class="print-approved-stamp" style="color:#94a3b8;">Pending</div>`;
+
+            tbody.innerHTML += `<tr>
+                <td style="text-align: center; font-weight: bold;">${w.sl || (idx + 1)}</td>
+                <td style="text-align: center; font-weight: bold; white-space: nowrap;">${w.week || ("Week - " + (idx < 9 ? "0" + (idx + 1) : (idx + 1)))}</td>
+                <td>
+                    <textarea class="sheet-textarea" id="sheetWork_${idx}" placeholder="Enter work done / progress details for this week..." oninput="updateSheetWork(${idx}, this.value)">${escapeHtml(w.work || "")}</textarea>
+                </td>
+                <td>
+                    <textarea class="sheet-textarea" id="sheetRemarks_${idx}" placeholder="Enter guide remarks..." oninput="updateSheetRemarks(${idx}, this.value)">${escapeHtml(w.remarks || "")}</textarea>
+                </td>
+                <td style="text-align: center; vertical-align: middle;">
+                    ${approveBtnHtml}
+                    ${printStamp}
+                </td>
+            </tr>`;
+        });
+
+        const badge = document.getElementById("sheetApprovedBadge");
+        if (badge) {
+            badge.innerText = `${approvedCount} / 12 Weeks Approved`;
+            if (approvedCount === 12) {
+                badge.style.background = "#16a34a";
+                badge.style.color = "#ffffff";
+            } else {
+                badge.style.background = "#dcfce7";
+                badge.style.color = "#15803d";
+            }
+        }
+    }
+
+    function updateSheetWork(idx, val) {
+        if (currentSheetData && currentSheetData.weeks[idx]) {
+            currentSheetData.weeks[idx].work = val;
+        }
+    }
+
+    function updateSheetRemarks(idx, val) {
+        if (currentSheetData && currentSheetData.weeks[idx]) {
+            currentSheetData.weeks[idx].remarks = val;
+        }
+    }
+
+    function toggleWeekApprove(idx) {
+        if (!currentSheetData || !currentSheetData.weeks[idx]) return;
+        currentSheetData.weeks[idx].approved = !currentSheetData.weeks[idx].approved;
+        renderSheetWeeks();
+        saveCurrentSheet(true);
+    }
+
+    function approveAllWeeks() {
+        if (!currentSheetData || !currentSheetData.weeks) return;
+        currentSheetData.weeks.forEach(w => { w.approved = true; });
+        renderSheetWeeks();
+        saveCurrentSheet(true);
+    }
+
+    function closeStudentSheet() {
+        document.getElementById("studentSheetModal").style.display = "none";
+        loadAll();
+    }
+
+    function saveCurrentSheet(silent = false) {
+        if (!currentSheetUsn || !currentSheetData) return;
+
+        // Collect latest text from inputs
+        currentSheetData.weeks.forEach(function(w, idx) {
+            const workEl = document.getElementById("sheetWork_" + idx);
+            const remEl = document.getElementById("sheetRemarks_" + idx);
+            if (workEl) w.work = workEl.value;
+            if (remEl) w.remarks = remEl.value;
+        });
+
+        const meta = {
+            student_name: document.getElementById("sheetStudentName").value.trim(),
+            student_usn: document.getElementById("sheetStudentUsn").value.trim(),
+            student_phone: document.getElementById("sheetStudentPhone").value.trim(),
+            student_course: document.getElementById("sheetStudentCourse").value.trim(),
+            company: document.getElementById("sheetCompanyName").value.trim(),
+            title: document.getElementById("sheetProjectTitle").value.trim(),
+            external_guide: document.getElementById("sheetExternalGuide").value.trim(),
+            internal_guide: document.getElementById("sheetInternalGuide").value.trim()
+        };
+
+        const payload = {
+            meta: meta,
+            weeks: currentSheetData.weeks
+        };
+
+        const badge = document.getElementById("sheetApprovedBadge");
+        if (silent && badge) {
+            badge.innerText = "💾 Saving to backend...";
+        }
+
+        fetch("/api/internships/progress-sheet/" + encodeURIComponent(currentSheetUsn), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(function(data) {
+            if (data.success) {
+                renderSheetWeeks();
+                if (silent) {
+                    if (badge) {
+                        const cur = badge.innerText;
+                        badge.innerText = "✓ Auto-saved to backend!";
+                        setTimeout(() => { renderSheetWeeks(); }, 1200);
+                    }
+                } else {
+                    alert("✓ Progress Sheet saved successfully to backend!");
+                }
+                loadAll();
+            } else {
+                alert(data.error || "Failed to save progress sheet.");
+            }
+        })
+        .catch(() => alert("Server error saving progress sheet."));
+    }
+
+    function escapeHtml(str) {
+        if (!str) return "";
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    window.addEventListener("click", function(e) {
+        const modal = document.getElementById("studentSheetModal");
+        if (e.target === modal) closeStudentSheet();
+    });
+
+    async function init() {
+        await checkUserRole();
+        loadAll();
+    }
+    init();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #333;
+        }
+
+        header {
+            background: #1565c0;
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            padding: 11px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            background: white;
+            color: #1565c0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 18px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            margin-bottom: 18px;
+            color: #1565c0;
+        }
+
+        .percentage {
+            font-size: 36px;
+            font-weight: bold;
+            color: #1565c0;
+        }
+
+        .muted {
+            color: #64748b;
+            margin-top: 8px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 13px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        @media (max-width: 500px) {
+            header {
+                padding: 18px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h2>My Attendance</h2>
+        <button class="back-btn"
+            onclick="location.href='/student/dashboard'">
+            Back to Dashboard
+        </button>
+    </header>
+
+    <div class="container">
+
+        <div class="card">
+            <h2>Attendance Summary</h2>
+            <p class="percentage" id="percentage">0%</p>
+            <p class="muted">
+                Your attendance percentage recorded by faculty.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>Attendance Records</h2>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="attendanceRows"></tbody>
+                </table>
+            </div>
+
+            <p class="muted" id="emptyMessage"></p>
+        </div>
+
+    </div>
+
+    <script>
+        const usn = localStorage.getItem("username");
+        const role = localStorage.getItem("userRole");
+
+        if (role !== "student" || !usn) {
+            alert("Please login as a student.");
+            window.location.href = "/login";
+        }
+
+        function readStorage(key, fallback) {
+            try {
+                return JSON.parse(
+                    localStorage.getItem(key) || JSON.stringify(fallback)
+                );
+            } catch {
+                return fallback;
+            }
+        }
+
+        async function loadStudentAttendance() {
+            let serverRecords = [];
+            try {
+                const res = await fetch("/api/attendance?student=" + encodeURIComponent(usn));
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data)) {
+                        serverRecords = data.map(r => ({
+                            usn: r.student_usn || r.usn,
+                            date: r.date,
+                            status: r.status || "Present",
+                            remarks: r.remarks || ""
+                        }));
+                    }
+                }
+            } catch (e) {
+                console.warn("Could not load attendance from server API:", e);
+            }
+
+            const localRecords = readStorage("attendanceRecords", [])
+                .filter(record => String(record.usn || "").toLowerCase() === String(usn).toLowerCase());
+
+            // Merge uniquely by date
+            const recordMap = new Map();
+            [...localRecords, ...serverRecords].forEach(r => {
+                if (r && r.date) {
+                    recordMap.set(r.date, r);
+                }
+            });
+
+            const records = Array.from(recordMap.values()).sort((a, b) => b.date.localeCompare(a.date));
+
+            const attended = records.filter(
+                record => String(record.status || "").toLowerCase() === "present"
+            ).length;
+
+            const savedAttendance = readStorage("attendance", {});
+            const percentage = records.length
+                ? Math.round((attended / records.length) * 100)
+                : (savedAttendance[usn] ?? 0);
+
+            document.getElementById("percentage").textContent =
+                percentage + "%";
+
+            const tbody = document.getElementById("attendanceRows");
+            tbody.innerHTML = "";
+
+            records.forEach(record => {
+                const row = document.createElement("tr");
+
+                [record.date, record.status, record.remarks || "-"]
+                    .forEach(value => {
+                        const cell = document.createElement("td");
+                        cell.textContent = value;
+                        row.appendChild(cell);
+                    });
+
+                tbody.appendChild(row);
+            });
+
+            document.getElementById("emptyMessage").textContent =
+                records.length === 0
+                    ? "No attendance records have been added by faculty yet."
+                    : "";
+        }
+
+        loadStudentAttendance();
+    </script>
+
+</body>
+</html>
